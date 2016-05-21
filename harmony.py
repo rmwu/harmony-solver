@@ -18,7 +18,7 @@ Rather, it is a good natured programming exercise.
 Author
 	Menghua Wu
 Version
-	May 20, 2016
+	May 21, 2016
 """
 def usage():
 	"""
@@ -34,6 +34,17 @@ class Harmony():
 	Harmony represents the grid of the game, which
 	is an n by n square. The grid is indexed (0,0)
 	at the top-left corner.
+
+	Instance Variables
+		n: side length of game
+		grid: n by n two-dimensional array representing
+			the tuple pair (color, swaps) of each block,
+			at each location (i, j) in grid[i][j]
+		swaps_left: number of total swaps remaining among
+			all blocks in grid
+		starting_points: tuple pairs (i, j) that, at the
+			beginning of the game, follow the property that
+			grid[i][j] has > 0 swaps
 	"""
 
 	################################
@@ -138,9 +149,9 @@ class Harmony():
 		except:
 			raise KeyError("Invalid grid index.")
 
-	def set(self, index, item):
+	def set_value(self, index, item):
 		"""
-		set
+		set_value
 			sets the value at grid[i][j] to item, where
 			(i, j) is the tuple equivalent of the given index
 
@@ -173,9 +184,6 @@ class Harmony():
 		Return
 			two-dimensional (i, j) representation of index
 		"""
-		if not self.valid_index(index):
-			raise KeyError("Invalid grid index.")
-
 		# integer division
 		return (index / self.n, index % self.n)
 
@@ -191,9 +199,6 @@ class Harmony():
 		Return
 			one-dimensional representation of (i, j)
 		"""
-		if not self.valid_index((i, j)):
-			raise KeyError("Invalid grid index.")
-
 		return i + self.n * j
 
 	def valid_index(self, index):
@@ -276,7 +281,7 @@ class Harmony():
 		if index1 == index2:
 			return False
 
-		if indices_in_line(index1, index2):
+		if self.indices_in_line(index1, index2):
 			swap1 = self.get(index1)[1]
 			swap2 = self.get(index2)[1]
 
@@ -292,11 +297,10 @@ class Harmony():
 			left to finish the game
 
 		Return
-			True: if the number of swaps left is an even
-				number > 0
+			True: if the number of swaps left not zero
 			False: otherwise
 		"""
-		return self.swaps_left == 0
+		return self.swaps_left != 0
 
 	def game_solved(self):
 		"""
@@ -344,7 +348,7 @@ class Harmony():
 		"""
 		i, j = index
 
-		horizontal = [(i, x) for y in range(self.n)]
+		horizontal = [(i, y) for y in range(self.n)]
 		vertical = [(x, j) for x in range(self.n)]
 
 		# overlap of index itself is okay since valid_swap
@@ -380,8 +384,8 @@ class Harmony():
 			color1, swap1 = self.get(index1)
 			color2, swap2 = self.get(index2)
 
-			self.set(index1, (color2, swap1 - 1))
-			self.set(index2, (color1, swap2 - 1))
+			self.set_value(index1, (color2, swap1 - 1))
+			self.set_value(index2, (color1, swap2 - 1))
 
 			self.swaps_left -= 2
 
@@ -414,8 +418,8 @@ class Harmony():
 			color1, swap1 = self.get(index1)
 			color2, swap2 = self.get(index2)
 
-			self.set(index1, (color2, swap1 + 1))
-			self.set(index2, (color1, swap2 + 1))
+			self.set_value(index1, (color2, swap1 + 1))
+			self.set_value(index2, (color1, swap2 + 1))
 
 			self.swaps_left += 2
 
@@ -447,13 +451,13 @@ class Harmony():
 			return []
 
 		for start in self.starting_points:
-			path = find_path(self, start)
+			path = self.find_path(start)
 			if path:
 				return path
 
 		return None
 
-	def find_path(self, index1, path = []):
+	def find_path(self, index1, path = [], tried = set()):
 		"""
 		find_path
 			is a recursive helper function for solve. It tries
@@ -473,25 +477,34 @@ class Harmony():
 			return path
 
 		# make a copy of path
-		path += [index1]
+		# path += [index1]
 
 		# not solved, but no swaps left
 		if not self.has_swaps_left():
+			print self.swaps_left
 			return None
 
 		swappable = self.valid_moves(index1)
 
 		# explore each path
 		for index2 in swappable:
-			# try to swap it and see what happens
-			self.swap(index1, index2)
-			path = self.find_path(index2, path)
+			swap_pair = (index1, index2)
+			print "trying to swap {}".format(swap_pair)
+			# don't want to infinitely recurse and try
+			if swap_pair not in tried:
+				path += swap_pair
+				tried.add(swap_pair)
 
-			if path:
-				return path
+				# try to swap it and see what happens
+				self.swap(index1, index2)
+				path = self.find_path(index2, path)
+				print "found {}".format(path)
 
-			# if no path, undo the swapping
-			self.unswap(index1, index2)
+				if path:
+					return path
+
+				# if no path, undo the swapping
+				self.unswap(index1, index2)
 
 		return None
 

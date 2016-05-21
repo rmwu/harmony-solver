@@ -18,7 +18,7 @@ Formatting of data_filename.txt
 Author
 	Menghua Wu
 Version
-	May 20, 2016
+	May 21, 2016
 """
 
 args = sys.argv
@@ -69,7 +69,7 @@ def get_harmony_text(filename):
 			data = json.loads(
 			f.read().replace("\'",'"').replace("(", '['
 			).replace(")", ']'))
-			
+
 			return data
 		except:
 			print "Invalid data file formatting."
