@@ -1,4 +1,5 @@
 import sys
+from collections import deque
 
 """
 Harmony 3 is an iOS game that prompts the user to
@@ -7,9 +8,10 @@ given an exact number of required swaps per block,
 between blocks directly inline with each other,
 horizontally and vertically.
 
-For more information, visit .
+For more information, visit:
+https://itunes.apple.com/us/app/har-mo-ny-3/id982805507?mt=8
 
-This is a BFS solver for Harmony 3. This project
+This is a DFS solver for Harmony 3. This project
 is not intended to infringe upon any copyright.
 Rather, it is a good natured programming exercise.
 
@@ -18,6 +20,14 @@ Author
 Version
 	May 20, 2016
 """
+def usage():
+	"""
+	usage
+		prompts the user that their input is incorrect
+		and exits the program
+	"""
+	print "Your input file is improperly formatted."
+	sys.exit(1)
 
 class Harmony():
 	"""
@@ -51,7 +61,10 @@ class Harmony():
 		# if one is not provided, then we cannot have
 		# a valid game
 		if not colors or not swaps:
-			n = 0
+			usage()
+
+		if len(colors) != n**2 or len(swaps) != n**2:
+			usage()
 
 		self.n = n
 
@@ -72,7 +85,7 @@ class Harmony():
 
 		# get starting points, where swaps > 0 
 		self.starting_points = []
-		for i in range(len(swaps)):
+		for i in range(n**2):
 			swap = swaps[i]
 			if swap > 0:
 				index = list_to_grid_index(i)
@@ -415,7 +428,7 @@ class Harmony():
 			locates an optimal series of swaps to win the
 			game, if possible. It returns that series as
 			a list of tuples (index1, index2) of swaps.
-			It uses the principles of BFS.
+			It uses the principles of DFS.
 
 			It tries to start from each block once. each
 			iteration, it swaps two blocks to see what happens,
@@ -427,6 +440,49 @@ class Harmony():
 				valid series of swaps to win the game
 			None: otherwise
 		"""
+		if self.game_solved():
+			return []
+
 		for start in self.starting_points:
-			pass
+			path = find_path(self, start)
+			if path:
+				return path
+
+		return None
+
+	def find_path(self, index1, path = []):
+		"""
+		find_path
+			is a recursive helper function for solve. It tries
+			to DFS from all different paths
+
+		Parameters
+			index1: (i, j) tuple representing the
+				index of item grid[i][j]
+
+		Return
+			[(i1, i2), (j1, j2), ...]: if there exists a
+				valid series of swaps to win the game
+			[]:	if no swaps are needed; the game is complete
+			None: otherwise
+		"""
+		if self.game_solved():
+			return path
+
+		# make a copy of path
+		path += [index]
+
+		# not solved, but no swaps left
+		if not self.has_swaps_left():
+			return None
+
+		swappable = self.valid_moves(index1)
+
+		# explore each path
+		for index2 in swappable:
+			path = self.find_path(index2, path)
+			if path:
+				return path
+
+		return None
 
