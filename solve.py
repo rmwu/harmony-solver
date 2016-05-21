@@ -1,10 +1,18 @@
 import sys
 import os
-from harmony import *
+from harmony import Harmony
 
 """
 solve.py is the CLI for solving a game of
 Harmony 3, as described in harmony.py
+
+Usage
+	solve.py data_filename.txt
+
+Formatting of data_filename.txt
+	n
+	[color_1, color_2, ... color_n^2]
+	[swap_1, swap_2, ... swap_n^2]
 """
 
 args = sys.argv
@@ -52,11 +60,35 @@ def get_harmony_text(filename):
 	with open filename as f:
 		pass
 
+
+################################
+# Run CLI with given data file
+################################
 if __name__ == "__main__":
+	# check for invalid usage
 	if len(sys.argv) != 2 or \
 		not os.path.exists(sys.argv[1]):
 			usage()
 
+	# load data from text file
 	data = get_harmony_text(sys.argv[1])
 
-	# todo: implement solving
+	# get values from data dict
+	try:
+		n = data["n"]
+		colors = data["colors"]
+		swaps = data["swaps"]
+	except:
+		print "Invalid data file formatting."
+		usage()
+
+	# load and solve game
+	harmony = Harmony(n, colors, swaps)
+	path = harmony.solve()
+
+	# print answer
+	if path is None:
+		print "Sorry! This game has no solution."
+	else:
+		for swap in path:
+			print "Swap {} and {}.\n".format(swap[0], swap[1])
