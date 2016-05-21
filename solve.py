@@ -13,6 +13,11 @@ Formatting of data_filename.txt
 	n
 	[color_1, color_2, ... color_n^2]
 	[swap_1, swap_2, ... swap_n^2]
+
+Author
+	Menghua Wu
+Version
+	May 20, 2016
 """
 
 args = sys.argv

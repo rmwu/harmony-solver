@@ -1,3 +1,5 @@
+import sys
+
 """
 Harmony 3 is an iOS game that prompts the user to
 reproduce a certain configuration of color blocks,
@@ -11,8 +13,10 @@ This is a BFS solver for Harmony 3. This project
 is not intended to infringe upon any copyright.
 Rather, it is a good natured programming exercise.
 
-Author: Menghua Wu
-Version: May 20, 2016
+Author
+	Menghua Wu
+Version
+	May 20, 2016
 """
 
 class Harmony():
@@ -67,6 +71,51 @@ class Harmony():
 				block = (color[index], swaps[index])
 
 				row.append(block)
+
+	def usage(self, state):
+		"""
+		usage
+			prompts the user if they have given an
+			illegal game configuration
+
+		Parameters
+			state: integer of [0, 1, 2]
+				0 represents wrong list sizes
+
+				1 represents wrong swaps, e.g. uneven
+
+				2 represents wrong color configuration,
+				e.g. not the same number of each color.
+		"""
+		if state == 0:
+			print "Wrong list size for color or swaps."
+		elif state == 1:
+			print "Uneven number of swaps."
+		else:
+			print "Not the same number of blocks per color."
+		sys.exit(1)
+
+	def get(self, index):
+		"""
+		get
+			returns the tuple stored at grid[i][j],
+			where (i, j) is the tuple equivalent of 
+			the given index
+
+		Parameters
+			index: single integer index representing some
+			(i, j) in a one-dimensional form from left to
+			right, top to bottom
+
+		Return
+			grid[i][j]: if the index is valid
+			KeyError: otherwise
+		"""
+		try:
+			i, j = self.list_to_grid_index(index)
+			return grid[i][j]
+		except:
+			raise KeyError("Invalid grid index.")
 
 	def list_to_grid_index(self, i):
 		"""
@@ -154,7 +203,14 @@ class Harmony():
 				both have > 0 swaps available
 			False: otherwise
 		"""
-		pass
+		if indices_in_line(index1, index2):
+			swap1 = self.get(index1)[1]
+			swap2 = self.get(index2)[1]
+
+			return (swap1 > 0 and swap2 > 0)
+
+		# else indices not in line
+		return False
 
 	def has_swaps_left(self):
 		"""
@@ -167,7 +223,7 @@ class Harmony():
 				number > 0
 			False: otherwise
 		"""
-		pass
+		return self.moves_left == 0
 
 	def game_solved(self):
 		"""
@@ -183,7 +239,17 @@ class Harmony():
 				in order of color by row
 			False: otherwise
 		"""
-		pass
+		# must use all swaps
+		if self.has_swaps_left():
+			return False
+
+		for i in range(self.n):
+			for j in range(self.n):
+				if self.grid[i][j] != i:
+					return False
+
+		# no swaps left, all colors in order
+		return True
 
 	################################
 	# Pathfinding helper functions
