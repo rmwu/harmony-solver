@@ -186,7 +186,7 @@ class Harmony():
 		pass
 
 	################################
-	# Pathfinding functionality
+	# Pathfinding helper functions
 	################################
 	def valid_moves(self, index):
 		"""
@@ -237,6 +237,29 @@ class Harmony():
 			The total swap count has been increased by 2,
 			and the individual swap counts of index1, index2
 			have each increased by 1.
+		"""
+		pass
+
+	################################
+	# Main pathfinding algorithm
+	################################
+	def solve(self):
+		"""
+		solve
+			locates an optimal series of swaps to win the
+			game, if possible. It returns that series as
+			a list of tuples (index1, index2) of swaps.
+			It uses the principles of BFS.
+
+			It tries to start from each block once. each
+			iteration, it swaps two blocks to see what happens,
+			and if the situation does not lead to a winning
+			combination, unswaps and resets the two blocks.
+
+		Return
+			[(i1, i2), (j1, j2), ...]: if there exists a
+				valid series of swaps to win the game
+			None: otherwise
 		"""
 		pass
 
