@@ -61,9 +61,11 @@ class Harmony():
 		# if one is not provided, then we cannot have
 		# a valid game
 		if not colors or not swaps:
+			print "Either colors or swaps is not provided."
 			usage()
 
 		if len(colors) != n**2 or len(swaps) != n**2:
+			print "Either colors or swaps has the wrong length."
 			usage()
 
 		self.n = n
@@ -72,14 +74,15 @@ class Harmony():
 		# condition; else, need O(n^2) each time
 		self.swaps_left = sum(swaps)
 
+		self.grid = []
 		# grid initialization
 		for i in range(n):
 			self.grid.append([])
-			self.grid[i] = row
+			row = self.grid[i]
 
 			for j in range(n):
-				index = grid_to_list_index(i, j)
-				block = (color[index], swaps[index])
+				index = self.grid_to_list_index(i, j)
+				block = (colors[index], swaps[index])
 
 				row.append(block)
 
@@ -88,7 +91,7 @@ class Harmony():
 		for i in range(n**2):
 			swap = swaps[i]
 			if swap > 0:
-				index = list_to_grid_index(i)
+				index = self.list_to_grid_index(i)
 				self.starting_points.append(index)
 
 	def usage(self, state):

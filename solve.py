@@ -1,5 +1,6 @@
 import sys
 import os
+import json
 from harmony import Harmony
 
 """
@@ -62,16 +63,17 @@ def get_harmony_text(filename):
 		}
 	"""
 	# todo: read in file
-	with open filename as f:
+	with open(filename, "r") as f:
 		data = {}
 		try:
-			data["n"] = f.readline()
-			data["colors"] = f.readline()
-			data["swaps"] = f.readline()
+			data = json.loads(
+			f.read().replace("\'",'"').replace("(", '['
+			).replace(")", ']'))
+			
+			return data
 		except:
 			print "Invalid data file formatting."
 			usage()
-
 
 ################################
 # Run CLI with given data file
