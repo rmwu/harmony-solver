@@ -203,6 +203,10 @@ class Harmony():
 				both have > 0 swaps available
 			False: otherwise
 		"""
+		# cannot swap with itself
+		if index1 == index2:
+			return False
+
 		if indices_in_line(index1, index2):
 			swap1 = self.get(index1)[1]
 			swap2 = self.get(index2)[1]
@@ -248,7 +252,7 @@ class Harmony():
 				if self.grid[i][j] != i:
 					return False
 
-		# no swaps left, all colors in order
+		# no swaps left, all colors in orderg
 		return True
 
 	################################
@@ -269,7 +273,22 @@ class Harmony():
 			[index1, index2, ...] of valid swaps starting
 			from the given index
 		"""
-		pass
+		i, j = index
+
+		horizontal = [(i, x) for y in range(self.n)]
+		vertical = [(x, j) for x in range(self.n)]
+
+		# overlap of index itself is okay since valid_swap
+		# catches not swapping with itself
+		possible_moves = horizontal + vertical
+		valid_moves = []
+
+		# try them all, in the horizontal and vertical lines
+		for move in possible_moves:
+			if self.valid_swap(index, move):
+				valid_moves.append(move)
+
+		return valid_moves
 
 	def swap(self, index1, index2):
 		"""
