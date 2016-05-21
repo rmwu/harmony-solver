@@ -104,12 +104,11 @@ class Harmony():
 
 		Parameters
 			index: single integer index representing some
-			(i, j) in a one-dimensional form from left to
-			right, top to bottom
+				(i, j) in a one-dimensional form from left
+				to right, top to bottom
 
 		Return
 			grid[i][j]: if the index is valid
-			KeyError: otherwise
 		"""
 		try:
 			i, j = self.list_to_grid_index(index)
@@ -119,18 +118,75 @@ class Harmony():
 
 	def set(self, index, item):
 		"""
-		"""
-		pass
+		set
+			sets the value at grid[i][j] to item, where
+			(i, j) is the tuple equivalent of the given index
 
-	def list_to_grid_index(self, i):
+		Parameters
+			index: single integer index representing some
+				(i, j) in a one-dimensional form from left
+				to right, top to bottom
+			item: tuple (color, swap) representing the new 
+				value of the block at (i, j)
+
+		Return
+			grid[i][j]: if the index is valid
 		"""
+		try:
+			i, j = grid.list_to_grid_index(index)
+			self.grid[i][j] = item
+			return item
+		except:
+			raise KeyError("Invalid grid index.")
+
+	def list_to_grid_index(self, index):
 		"""
-		pass
+		list_to_grid_index returns the (i, j) tuple form
+			of the given index
+
+		Parameters
+			index: one-dimensional representation of an
+				index (i, j) in grid
+
+		Return
+			two-dimensional (i, j) representation of index
+		"""
+		if not self.valid_index(index):
+			raise KeyError("Invalid grid index.")
+
+		# todo: implement
 
 	def grid_to_list_index(self, i, j):
 		"""
+		grid_to_list_index returns the one-dimensional
+			index of (i, j) for the given grid of size n
+
+		Parameters
+			i: x-value of index
+			j: y-value of index
+
+		Return
+			one-dimensional representation of (i, j)
 		"""
-		pass
+		if not self.valid_index((i, j)):
+			raise KeyError("Invalid grid index.")
+
+		# todo: implement
+
+	# override this later
+	def index(self, x, y):
+		"""
+		index returns the index of the element at x, y
+		in the gas's matrix form
+
+		If x, y are not valid, returns -1
+		"""
+		# catch over boundaries
+		if x > self.width - 1 or x < 0:
+			return -1
+		if y > self.height - 1 or y < 0:
+			return -1
+		return x + self.width * y
 
 	def valid_index(self, index):
 		"""
