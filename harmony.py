@@ -156,6 +156,19 @@ class Harmony():
 		"""
 		pass
 
+	def has_swaps_left(self):
+		"""
+		has_swaps_left
+			returns whether or not there are enough swaps
+			left to finish the game
+
+		Return
+			True: if the number of swaps left is an even
+				number > 0
+			False: otherwise
+		"""
+		pass
+
 	def game_solved(self):
 		"""
 		game_solved
@@ -189,6 +202,41 @@ class Harmony():
 		Return
 			[index1, index2, ...] of valid swaps starting
 			from the given index
+		"""
+		pass
+
+	def swap(self, index1, index2):
+		"""
+		swap
+			swaps the colors at index1, index2, if the
+			action is valid as defined by valid_swap,
+			and decreases the swap count accordingly
+
+		Postcondition
+			The colors at index1, index2 are swapped.
+			The total swap count has been decreased by 2,
+			and the individual swap counts of index1, index2
+			have each decreased by 1.
+		"""
+		pass
+
+	def unswap(self, index1, index2):
+		"""
+		unswap
+			resets the colors at index1, index2 to what
+			they were before swap(index1, index2) was
+			called. Swap counts are increased accordingly.
+
+		Precondition
+			The colors at index1, index2 were swapped in
+			some previous iteration, so that this operation
+			makes sense
+
+		Postcondition:
+			The colors at index1, index2 are swapped.
+			The total swap count has been increased by 2,
+			and the individual swap counts of index1, index2
+			have each increased by 1.
 		"""
 		pass
 
