@@ -470,7 +470,7 @@ class Harmony():
 			return path
 
 		# make a copy of path
-		path += [index]
+		path += [index1]
 
 		# not solved, but no swaps left
 		if not self.has_swaps_left():
@@ -480,9 +480,15 @@ class Harmony():
 
 		# explore each path
 		for index2 in swappable:
+			# try to swap it and see what happens
+			self.swap(index1, index2)
 			path = self.find_path(index2, path)
+
 			if path:
 				return path
+
+			# if no path, undo the swapping
+			self.unswap(index1, index2)
 
 		return None
 

@@ -63,7 +63,14 @@ def get_harmony_text(filename):
 	"""
 	# todo: read in file
 	with open filename as f:
-		pass
+		data = {}
+		try:
+			data["n"] = f.readline()
+			data["colors"] = f.readline()
+			data["swaps"] = f.readline()
+		except:
+			print "Invalid data file formatting."
+			usage()
 
 
 ################################
@@ -79,13 +86,9 @@ if __name__ == "__main__":
 	data = get_harmony_text(sys.argv[1])
 
 	# get values from data dict
-	try:
-		n = data["n"]
-		colors = data["colors"]
-		swaps = data["swaps"]
-	except:
-		print "Invalid data file formatting."
-		usage()
+	n = data["n"]
+	colors = data["colors"]
+	swaps = data["swaps"]
 
 	# load and solve game
 	harmony = Harmony(n, colors, swaps)
