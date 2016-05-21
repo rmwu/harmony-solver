@@ -59,9 +59,7 @@ class Harmony():
 		# condition; else, need O(n^2) each time
 		self.swaps_left = sum(swaps)
 
-		# todo: initialize grid here
-		self.grid = []
-
+		# grid initialization
 		for i in range(n):
 			self.grid.append([])
 			self.grid[i] = row
@@ -71,6 +69,14 @@ class Harmony():
 				block = (color[index], swaps[index])
 
 				row.append(block)
+
+		# get starting points, where swaps > 0 
+		self.starting_points = []
+		for i in range(len(swaps)):
+			swap = swaps[i]
+			if swap > 0:
+				index = list_to_grid_index(i)
+				self.starting_points.append(index)
 
 	def usage(self, state):
 		"""
@@ -421,5 +427,6 @@ class Harmony():
 				valid series of swaps to win the game
 			None: otherwise
 		"""
-		pass
+		for start in self.starting_points:
+			pass
 
