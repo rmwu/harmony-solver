@@ -154,7 +154,8 @@ class Harmony():
 		if not self.valid_index(index):
 			raise KeyError("Invalid grid index.")
 
-		# todo: implement
+		# integer division
+		return (index / self.n, index % self.n)
 
 	def grid_to_list_index(self, i, j):
 		"""
@@ -171,22 +172,7 @@ class Harmony():
 		if not self.valid_index((i, j)):
 			raise KeyError("Invalid grid index.")
 
-		# todo: implement
-
-	# override this later
-	def index(self, x, y):
-		"""
-		index returns the index of the element at x, y
-		in the gas's matrix form
-
-		If x, y are not valid, returns -1
-		"""
-		# catch over boundaries
-		if x > self.width - 1 or x < 0:
-			return -1
-		if y > self.height - 1 or y < 0:
-			return -1
-		return x + self.width * y
+		return i + self.n * j
 
 	def valid_index(self, index):
 		"""
