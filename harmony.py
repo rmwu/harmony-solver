@@ -55,9 +55,9 @@ class Harmony():
 
 		self.n = n
 
-		# maintain moves_left for O(1) checking ending
+		# maintain swaps_left for O(1) checking ending
 		# condition; else, need O(n^2) each time
-		self.moves_left = sum(swaps)
+		self.swaps_left = sum(swaps)
 
 		# todo: initialize grid here
 		self.grid = []
@@ -116,6 +116,11 @@ class Harmony():
 			return grid[i][j]
 		except:
 			raise KeyError("Invalid grid index.")
+
+	def set(self, index, item):
+		"""
+		"""
+		pass
 
 	def list_to_grid_index(self, i):
 		"""
@@ -227,7 +232,7 @@ class Harmony():
 				number > 0
 			False: otherwise
 		"""
-		return self.moves_left == 0
+		return self.swaps_left == 0
 
 	def game_solved(self):
 		"""
@@ -302,8 +307,22 @@ class Harmony():
 			The total swap count has been decreased by 2,
 			and the individual swap counts of index1, index2
 			have each decreased by 1.
+
+		Return
+			True: if successful
+			False: otherwise
 		"""
-		pass
+		if valid_swap(index1, index2):
+			color1, swap1 = self.get(index1)
+			color2, swap2 = self.get(index2)
+
+			self.set(index1, (color2, swap1 - 1))
+			self.set(index2, (color1, swap2 - 1))
+
+			self.swaps_left -= 2
+
+			return True
+		return False
 
 	def unswap(self, index1, index2):
 		"""
@@ -322,8 +341,22 @@ class Harmony():
 			The total swap count has been increased by 2,
 			and the individual swap counts of index1, index2
 			have each increased by 1.
+
+		Return
+			True: if successful
+			False: otherwise
 		"""
-		pass
+		if valid_swap(index1, index2):
+			color1, swap1 = self.get(index1)
+			color2, swap2 = self.get(index2)
+
+			self.set(index1, (color2, swap1 + 1))
+			self.set(index2, (color1, swap2 + 1))
+
+			self.swaps_left += 2
+
+			return True
+		return False
 
 	################################
 	# Main pathfinding algorithm
