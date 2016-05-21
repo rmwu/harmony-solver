@@ -210,7 +210,7 @@ class Harmony():
 			True: if 0 <= i, j < n
 			False: otherwise
 		"""
-		i, j = index
+		i, j = self.list_to_grid_index(index)
 		return (0 <= i < self.n and 0 <= j < self.n)
 
 	def indices_in_line(self, index1, index2):
