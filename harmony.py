@@ -431,31 +431,6 @@ class Harmony():
 			remaining
 		"""
 		# trivial case to catch
-		if self.swaps_left == 0:
-			return []
-
-		# todo: dynamically maintain this list
-		swappable = []
-
-		grid = self.grid
-		for i in range(self.n):
-			for j in range(self.n):
-				if grid[i][j][1] > 0:
-					swappable.append((i,j))
-
-		return swappable
-
-	def get_swappable(self):
-		"""
-		get_swappable
-			finds and returns a list of indices containing
-			swappable blocks, with swaps > 0
-
-		Return
-			[index1, index2, ...] of valid swappable blocks
-			remaining
-		"""
-		# trivial case to catch
 		swapping_points = self.swapping_points
 		return [ind for ind in swapping_points
 				if swapping_points[ind]]
