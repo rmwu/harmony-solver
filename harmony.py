@@ -354,8 +354,9 @@ class Harmony():
 			color2, swap2 = self.get_by_pair(index2)
 
 			# don't allow impossible situations
-			if ((swap1 < 2 and color1 != index1[0]) or
-				(swap2 < 2 and color2 != index2[0])):
+			# if swap to a row that is impossible
+			if ((swap1 < 2 and color1 != index2[0]) or
+				(swap2 < 2 and color2 != index1[0])):
 				return False
 
 			return (swap1 > 0 and swap2 > 0)
@@ -489,8 +490,8 @@ class Harmony():
 			color1, swap1 = self.get_by_pair(index1)
 			color2, swap2 = self.get_by_pair(index2)
 
-			self.set_value_by_pair(index1, (color2, swap1 - 1))
-			self.set_value_by_pair(index2, (color1, swap2 - 1))
+			self.set_value_by_pair(index1, (color2, swap2 - 1))
+			self.set_value_by_pair(index2, (color1, swap1 - 1))
 
 			self.swaps_left -= 2
 
@@ -528,8 +529,8 @@ class Harmony():
 		color1, swap1 = self.get_by_pair(index1)
 		color2, swap2 = self.get_by_pair(index2)
 
-		self.set_value_by_pair(index1, (color2, swap1 + 1))
-		self.set_value_by_pair(index2, (color1, swap2 + 1))
+		self.set_value_by_pair(index1, (color2, swap2 + 1))
+		self.set_value_by_pair(index2, (color1, swap1 + 1))
 
 		self.swaps_left += 2
 
@@ -592,6 +593,7 @@ class Harmony():
 			return None
 
 		swappable = self.valid_moves(index1)
+		print "swappable ones are {}".format(swappable)
 
 		# explore each path
 		for index2 in swappable:
@@ -602,7 +604,8 @@ class Harmony():
 			# don't want to infinitely recurse
 			path.append(swap_pair)
 
-			print "current path is {}\n".format(path)
+			print "current path is {}".format(path)
+			print "state of game is {}\n".format(self.grid)
 
 			# tuples are hashable
 			path_tup = tuple(path)
