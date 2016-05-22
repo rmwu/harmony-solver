@@ -437,6 +437,31 @@ class TestHarmonySmall(unittest.TestCase):
 		self.assertEqual(set([(0,1), (1,0)]),
 						set(harmony.valid_moves(index)))
 
+	def testPathfinding_get_swappable_none(self):
+		"""
+		testPathfinding_get_swappable_none
+			tests that get_swappable returns an empty list
+			given no swaps available
+		"""
+		n = 2
+		colors = [0,0,1,1]
+		swaps = [0,0,0,0]
+		harmony = Harmony(n, colors, swaps)
+
+		self.assertEqual(harmony.get_swappable(), [])
+
+	def testPathfinding_get_swappable_many(self):
+		"""
+		testPathfinding_get_swappable_many
+			tests that get_swappable returns a correct
+			list of still swappable states, if there are
+			some
+		"""
+		swappable = set([(0,1),(1,1)])
+
+		self.assertEqual(swappable,
+		                set(self.harmony.get_swappable()))
+
 	################################
 	# Testing search algorithm
 	################################
@@ -467,11 +492,13 @@ class TestHarmonySmall(unittest.TestCase):
 
 		self.assertEqual(path, [])
 
-	def testSearch_path(self):
+	def testSearch_path_small(self):
 		"""
-		testSearch_path
+		testSearch_path_small
 			tests if a valid path is found, given that it exists
 			and the game does not start solved
+
+			This path has length 1.
 		"""
 		path = self.harmony.solve()
 		actual_length = 1

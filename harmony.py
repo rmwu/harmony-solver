@@ -113,7 +113,8 @@ class Harmony():
 				index = self.list_to_grid_index(i)
 				self.starting_points.append(index)
 
-		print self.grid
+		# maintain an array of swappable
+		self.swappable = [ind for ind in self.starting_points]
 
 	def reset(self):
 		"""
@@ -429,6 +430,31 @@ class Harmony():
 				valid_moves.append(move)
 
 		return valid_moves
+
+	def get_swappable(self):
+		"""
+		get_swappable
+			finds and returns a list of indices containing
+			swappable blocks, with swaps > 0
+
+		Return
+			[index1, index2, ...] of valid swappable blocks
+			remaining
+		"""
+		# trivial case to catch
+		if self.swaps_left == 0:
+			return []
+
+		# todo: dynamically maintain this list
+		swappable = []
+
+		grid = self.grid
+		for i in range(self.n):
+			for j in range(self.n):
+				if grid[i][j][1] > 0:
+					swappable.append((i,j))
+
+		return swappable
 
 	def swap(self, index1, index2):
 		"""
