@@ -191,6 +191,28 @@ class Harmony():
 		except:
 			raise KeyError("Invalid grid index {}.".format(index))
 
+	def set_value_by_pair(self, pair, item):
+		"""
+		set_value_by_pair
+			sets the value at grid[i][j] to item, where
+			pair = (i, j)
+
+		Parameters
+			pair: (i, j) tuple representing the index of
+				item grid[i][j]
+			item: tuple (color, swap) representing the new 
+				value of the block at (i, j)
+
+		Return
+			grid[i][j]: if the index is valid
+		"""
+		try:
+			i, j = pair
+			self.grid[i][j] = item
+			return item
+		except:
+			raise KeyError("Invalid grid index {}.".format(pair))
+
 	def list_to_grid_index(self, index):
 		"""
 		list_to_grid_index returns the (i, j) tuple form
@@ -390,6 +412,12 @@ class Harmony():
 			action is valid as defined by valid_swap,
 			and decreases the swap count accordingly
 
+		Parameters
+			index1: (i1, j1) tuple representing
+				the index of item grid[i1][j1]
+			index2: (i2, j2) tuple representing
+				the index of item grid[i2][j2]
+
 		Postcondition
 			The colors at index1, index2 are swapped.
 			The total swap count has been decreased by 2,
@@ -400,12 +428,12 @@ class Harmony():
 			True: if successful
 			False: otherwise
 		"""
-		if valid_swap(index1, index2):
-			color1, swap1 = self.get(index1)
-			color2, swap2 = self.get(index2)
+		if self.valid_swap(index1, index2):
+			color1, swap1 = self.get_by_pair(index1)
+			color2, swap2 = self.get_by_pair(index2)
 
-			self.set_value(index1, (color2, swap1 - 1))
-			self.set_value(index2, (color1, swap2 - 1))
+			self.set_value_by_pair(index1, (color2, swap1 - 1))
+			self.set_value_by_pair(index2, (color1, swap2 - 1))
 
 			self.swaps_left -= 2
 
@@ -418,6 +446,12 @@ class Harmony():
 			resets the colors at index1, index2 to what
 			they were before swap(index1, index2) was
 			called. Swap counts are increased accordingly.
+
+		Parameters
+			index1: (i1, j1) tuple representing
+				the index of item grid[i1][j1]
+			index2: (i2, j2) tuple representing
+				the index of item grid[i2][j2]
 
 		Precondition
 			The colors at index1, index2 were swapped in
@@ -434,12 +468,12 @@ class Harmony():
 			True: if successful
 			False: otherwise
 		"""
-		if valid_swap(index1, index2):
-			color1, swap1 = self.get(index1)
-			color2, swap2 = self.get(index2)
+		if self.valid_swap(index1, index2):
+			color1, swap1 = self.get_by_pair(index1)
+			color2, swap2 = self.get_by_pair(index2)
 
-			self.set_value(index1, (color2, swap1 + 1))
-			self.set_value(index2, (color1, swap2 + 1))
+			self.set_value_by_pair(index1, (color2, swap1 + 1))
+			self.set_value_by_pair(index2, (color1, swap2 + 1))
 
 			self.swaps_left += 2
 

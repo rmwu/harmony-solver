@@ -294,5 +294,73 @@ class TestHarmonySmall(unittest.TestCase):
 
 		self.assertFalse(self.harmony.valid_swap(index1, index2))
 
+	################################
+	# Testing swaps / unswaps
+	################################
+	def testSwap_swap(self):
+		"""
+		testSwap_swap
+			tests whether swap correctly swaps two colors,
+			decreases the swaps available for each, and decreases
+			the total number of swaps left
+		"""
+		index1 = (0, 1)
+		index2 = (1, 1)
+
+		color1, swaps1 = self.harmony.get_by_pair(index1)
+		color2, swaps2 = self.harmony.get_by_pair(index2)
+		old_total = self.harmony.swaps_left
+
+		# swap here, and then observe new color / swaps
+		self.harmony.swap(index1, index2)
+
+		color1_new, swaps1_new = self.harmony.get_by_pair(index1)
+		color2_new, swaps2_new = self.harmony.get_by_pair(index2)
+		new_total = self.harmony.swaps_left
+
+		# check color swapping
+		self.assertEqual(color1, color2_new)
+		self.assertEqual(color2, color1_new)
+
+		# check swaps decrease
+		self.assertEqual(swaps1_new, swaps1 - 1)
+		self.assertEqual(swaps2_new, swaps2 - 1)
+		
+		# check total swaps decrease
+		self.assertEqual(new_total, old_total - 2)
+
+	def testSwap_unswap(self):
+		"""
+		testSwap_unswap
+			tests whether unswap correctly reverts two colors,
+			re-increases the swaps available, and re-increases
+			the total number of swaps left
+		"""
+		index1 = (0, 1)
+		index2 = (1, 1)
+
+		color1, swaps1 = self.harmony.get_by_pair(index1)
+		color2, swaps2 = self.harmony.get_by_pair(index2)
+		old_total = self.harmony.swaps_left
+
+		# swap here, and then observe new color / swaps
+		self.harmony.unswap(index1, index2)
+
+		color1_new, swaps1_new = self.harmony.get_by_pair(index1)
+		color2_new, swaps2_new = self.harmony.get_by_pair(index2)
+		new_total = self.harmony.swaps_left
+
+		# check color swapping
+		self.assertEqual(color1, color2_new)
+		self.assertEqual(color2, color1_new)
+
+		# check swaps decrease
+		self.assertEqual(swaps1_new, swaps1 + 1)
+		self.assertEqual(swaps2_new, swaps2 + 1)
+		
+		# check total swaps decrease
+		self.assertEqual(new_total, old_total + 2)
+
+
 if __name__ == '__main__':
 	unittest.main()
