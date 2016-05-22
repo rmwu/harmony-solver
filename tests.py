@@ -1,5 +1,6 @@
 import unittest
 from random import randint
+
 from harmony import Harmony
 
 """
@@ -71,9 +72,9 @@ class TestHarmonySmall(unittest.TestCase):
 		"""
 		self.assertEqual(2, self.harmony.swaps_left)
 
-	def testConstructor_starting_points_none(self):
+	def testConstructor_swapping_points_none(self):
 		"""
-		testConstructor_starting_points_none
+		testConstructor_swapping_points_none
 			tests that Harmony extracts the correct
 			starting points, given that there are none
 		"""
@@ -82,19 +83,19 @@ class TestHarmonySmall(unittest.TestCase):
 		swaps = [0,0,0,0]
 		harmony = Harmony(n, colors, swaps)
 
-		starting_points = set()
+		swapping_points = set()
 
-		self.assertEqual(starting_points, set(harmony.starting_points))
+		self.assertEqual(swapping_points, set(harmony.swapping_points))
 
-	def testConstructor_starting_points_exist(self):
+	def testConstructor_swapping_points_exist(self):
 		"""
-		testConstructor_starting_points_exist
+		testConstructor_swapping_points_exist
 			tests that Harmony extracts the correct
 			starting points, given that they exist
 		"""
-		starting_points = set([(0,1), (1,1)])
+		swapping_points = set([(0,1), (1,1)])
 
-		self.assertEqual(starting_points, set(self.harmony.starting_points))
+		self.assertEqual(swapping_points, set(self.harmony.swapping_points))
 
 	################################
 	# Testing index manipulations

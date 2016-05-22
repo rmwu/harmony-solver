@@ -19,8 +19,10 @@ Rather, it is a good natured programming exercise.
 Author
 	Menghua Wu
 Version
-	May 21, 2016
+	May 22, 2016
 """
+debug = False
+
 def usage():
 	"""
 	usage
@@ -38,19 +40,13 @@ class Harmony():
 
 	Instance Variables
 		n: side length of game
-		colors: specifies color in each block, from left
-			to right, top to bottom. For this game,
-			0 < color < n.
-		swaps: specifies the number of swaps required for each
-			block, from left to right, top to bottom. For this
-			game, number of swaps >= 0
 		grid: n by n two-dimensional array representing
 			the tuple pair (color, swaps) of each block,
 			at each location (i, j) in grid[i][j]
 		swaps_left: number of total swaps remaining among
 			all blocks in grid
-		starting_points: tuple pairs (i, j) that, at the
-			beginning of the game, follow the property that
+		swapping_points: tuple pairs (i, j) that, at the
+			any point in the game, follow the property that
 			grid[i][j] has > 0 swaps
 	"""
 
@@ -87,8 +83,6 @@ class Harmony():
 			usage()
 
 		self.n = n
-		self.colors = colors
-		self.swaps = swaps
 
 		# maintain swaps_left for O(1) checking ending
 		# condition; else, need O(n^2) each time
@@ -107,27 +101,12 @@ class Harmony():
 				row.append(block)
 
 		# get starting points, where swaps > 0 
-		self.starting_points = []
+		self.swapping_points = []
 		for i in range(n**2):
 			swap = swaps[i]
 			if swap > 0:
 				index = self.list_to_grid_index(i)
-				self.starting_points.append(index)
-
-		# maintain an array of swappable
-		self.swappable = [ind for ind in self.starting_points]
-
-	def reset(self):
-		"""
-		reset
-			reverts the game to the state it was in, when
-			initially created
-
-		Postcondition
-			All operations have been negated. Game has returned
-			to initial state
-		"""
-		self.__init__(self.n, self.colors, self.swaps)
+				self.swapping_points.append(index)
 
 	def usage(self, state):
 		"""
@@ -400,7 +379,7 @@ class Harmony():
 				if self.grid[i][j][0] != i:
 					return False
 
-		# no swaps left, all colors in orderg
+		# no swaps left, all colors in order
 		return True
 
 	################################
@@ -560,8 +539,9 @@ class Harmony():
 		if self.game_solved():
 			return []
 
-		for start in self.starting_points:
-			print "Starting at {}".format(start)
+		for start in self.swapping_points:
+			if debug:
+				print "Starting at {}".format(start)
 			path = self.find_path(start, [], set())
 
 			if path is not None:
@@ -593,19 +573,17 @@ class Harmony():
 			return None
 
 		swappable = self.valid_moves(index1)
-		print "swappable ones are {}".format(swappable)
+		if debug:
+			print "swappable ones are {}".format(swappable)
 
 		# explore each path
 		for index2 in swappable:
 			swap_pair = (index1, index2)
-			print "trying to swap {}".format(swap_pair)
-
-			
-			# don't want to infinitely recurse
 			path.append(swap_pair)
 
-			print "current path is {}".format(path)
-			print "state of game is {}\n".format(self.grid)
+			if debug:
+				print "trying to swap {}".format(swap_pair)
+				print "current path is {}".format(path)
 
 			# tuples are hashable
 			path_tup = tuple(path)

@@ -75,17 +75,17 @@ def get_harmony_text(filename):
 			print "Invalid data file formatting."
 			usage()
 
-################################
-# Run CLI with given data file
-################################
-if __name__ == "__main__":
-	# check for invalid usage
-	if len(sys.argv) != 2 or \
-		not os.path.exists(sys.argv[1]):
-			usage()
+def get_path(filename):
+	"""
+	get_path
+		takes in a filename, loads the data, and returns the
+		path found by Harmony, or None
 
-	# load data from text file
-	data = get_harmony_text(sys.argv[1])
+	Parameters
+		data: dictionary mapping n, colors, and swaps for 
+			a given initial state of the game
+	"""
+	data = get_harmony_text(filename)
 
 	# get values from data dict
 	n = data["n"]
@@ -96,6 +96,20 @@ if __name__ == "__main__":
 	harmony = Harmony(n, colors, swaps)
 	path = harmony.solve()
 
+	return path
+
+################################
+# Run CLI with given data file
+################################
+if __name__ == "__main__":
+	# check for invalid usage
+	if len(sys.argv) != 2 or \
+		not os.path.exists(sys.argv[1]):
+			usage()
+
+	# load data from text file
+	path = get_path(sys.argv[1])
+	
 	# print answer
 	if path is None:
 		print "Sorry! This game has no solution."
