@@ -100,5 +100,6 @@ if __name__ == "__main__":
 	if path is None:
 		print "Sorry! This game has no solution."
 	else:
+		print "We found a solution!"
 		for swap in path:
-			print "Swap {} and {}.\n".format(swap[0], swap[1])
+			print "Swap {} and {}.".format(swap[0], swap[1])

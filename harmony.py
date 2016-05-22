@@ -1,5 +1,6 @@
 import sys
 from collections import deque
+import copy
 
 """
 Harmony 3 is an iOS game that prompts the user to
@@ -313,7 +314,7 @@ class Harmony():
 		# check if index1 and index2 are valid
 		for index in [index1, index2]:
 			if not self.valid_index(
-			    self.grid_to_list_index(index[0], index[1])):
+				self.grid_to_list_index(index[0], index[1])):
 				return False
 
 		# now check if index1 and index2 are colinear
@@ -519,17 +520,15 @@ class Harmony():
 			True: if successful
 			False: otherwise
 		"""
-		if self.valid_swap(index1, index2):
-			color1, swap1 = self.get_by_pair(index1)
-			color2, swap2 = self.get_by_pair(index2)
+		color1, swap1 = self.get_by_pair(index1)
+		color2, swap2 = self.get_by_pair(index2)
 
-			self.set_value_by_pair(index1, (color2, swap1 + 1))
-			self.set_value_by_pair(index2, (color1, swap2 + 1))
+		self.set_value_by_pair(index1, (color2, swap1 + 1))
+		self.set_value_by_pair(index2, (color1, swap2 + 1))
 
-			self.swaps_left += 2
+		self.swaps_left += 2
 
-			return True
-		return False
+		return True
 
 	################################
 	# Main pathfinding algorithm
@@ -556,13 +555,11 @@ class Harmony():
 			return []
 
 		for start in self.starting_points:
+			print "Starting at {}".format(start)
 			path = self.find_path(start, [], set())
 
 			if path is not None:
 				return path
-
-			# else reset from the start
-			self.reset()
 
 		return None
 
@@ -593,33 +590,34 @@ class Harmony():
 
 		# explore each path
 		for index2 in swappable:
-			state1 = self.get_by_pair(index1)
-			state2 = self.get_by_pair(index2)
-
-			state_pair = (state1, state2)
 			swap_pair = (index1, index2)
-			print "trying to swap {}".format(swap_pair)
+			# print "trying to swap {}".format(swap_pair)
+			
 			# don't want to infinitely recurse
-
 			path += [swap_pair]
+
+			# tuples are hashable
 			path_tup = tuple(path)
-			#if state_pair not in tried:
 			if path_tup not in tried:
-				
-				print "path is {}".format(path)
 				tried.add(path_tup)
 
 				# try to swap it and see what happens
 				self.swap(index1, index2)
-				new_path = self.find_path(index2, path, tried)
-				print "found {}".format(new_path)
 
-				if new_path:
-					return new_path
+				if self.game_solved():
+					return path
 
-				# if no path, undo the swapping
-				self.unswap(index1, index2)
-				path = path[:-1]
+				# now try all remaining possibilities
+				remaining = self.get_swappable()
 
+				for index3 in remaining:
+					new_path = self.find_path(index3, path, tried)
+
+					if new_path:
+						return new_path
+
+			# if no path, undo the swapping
+			path.pop()
+			self.unswap(index1, index2)
+			
 		return None
-
