@@ -145,9 +145,28 @@ class Harmony():
 		"""
 		try:
 			i, j = self.list_to_grid_index(index)
-			return grid[i][j]
+			return self.grid[i][j]
 		except:
-			raise KeyError("Invalid grid index.")
+			raise KeyError("Invalid grid index {}.".format(index))
+
+	def get_by_pair(self, pair):
+		"""
+		get_by_pair
+			returns the tuple stored at grid[i][j],
+			where pair = (i, j)
+
+		Parameters
+			index: (i, j) tuple representing the
+				index of item grid[i][j]
+
+		Return
+			grid[i][j]: if the index is valid
+		"""
+		try:
+			i, j = pair
+			return self.grid[i][j]
+		except:
+			raise KeyError("Invalid grid index {}.".format(pair))
 
 	def set_value(self, index, item):
 		"""
@@ -166,11 +185,11 @@ class Harmony():
 			grid[i][j]: if the index is valid
 		"""
 		try:
-			i, j = grid.list_to_grid_index(index)
+			i, j = self.list_to_grid_index(index)
 			self.grid[i][j] = item
 			return item
 		except:
-			raise KeyError("Invalid grid index.")
+			raise KeyError("Invalid grid index {}.".format(index))
 
 	def list_to_grid_index(self, index):
 		"""
@@ -199,7 +218,7 @@ class Harmony():
 		Return
 			one-dimensional representation of (i, j)
 		"""
-		return i + self.n * j
+		return i * self.n + j
 
 	def valid_index(self, index):
 		"""
@@ -246,7 +265,8 @@ class Harmony():
 		"""
 		# check if index1 and index2 are valid
 		for index in [index1, index2]:
-			if not self.valid_index(index):
+			if not self.valid_index(
+			    self.grid_to_list_index(index[0], index[1])):
 				return False
 
 		# now check if index1 and index2 are colinear
@@ -282,8 +302,8 @@ class Harmony():
 			return False
 
 		if self.indices_in_line(index1, index2):
-			swap1 = self.get(index1)[1]
-			swap2 = self.get(index2)[1]
+			swap1 = self.get_by_pair(index1)[1]
+			swap2 = self.get_by_pair(index2)[1]
 
 			return (swap1 > 0 and swap2 > 0)
 
