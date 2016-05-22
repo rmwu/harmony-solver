@@ -291,10 +291,13 @@ class Harmony():
 			False: otherwise
 		"""
 		# check if index1 and index2 are valid
+		# uncomment for slower, safer code
+		"""
 		for index in [index1, index2]:
 			if not self.valid_index(
 				self.grid_to_list_index(index[0], index[1])):
 				return False
+		"""
 
 		# now check if index1 and index2 are colinear
 		i1, j1 = index1
@@ -453,7 +456,9 @@ class Harmony():
 			remaining
 		"""
 		# trivial case to catch
-		return self.swapping_points.keys()
+		swapping_points = self.swapping_points
+		return [ind for ind in swapping_points
+				if swapping_points[ind]]
 
 	def swap(self, index1, index2):
 		"""
@@ -488,9 +493,9 @@ class Harmony():
 			# check if no longer swappable
 			swapping_points = self.swapping_points
 			if swap2 < 2:
-				del swapping_points[index1]
+				swapping_points[index1] = False
 			if swap1 < 2:
-				del swapping_points[index2]
+				swapping_points[index2] = False
 
 			self.swaps_left -= 2
 
