@@ -350,8 +350,13 @@ class Harmony():
 			return False
 
 		if self.indices_in_line(index1, index2):
-			swap1 = self.get_by_pair(index1)[1]
-			swap2 = self.get_by_pair(index2)[1]
+			color1, swap1 = self.get_by_pair(index1)
+			color2, swap2 = self.get_by_pair(index2)
+
+			# don't allow impossible situations
+			if ((swap1 < 2 and color1 != index1[0]) or
+				(swap2 < 2 and color2 != index2[0])):
+				return False
 
 			return (swap1 > 0 and swap2 > 0)
 
@@ -591,10 +596,13 @@ class Harmony():
 		# explore each path
 		for index2 in swappable:
 			swap_pair = (index1, index2)
-			# print "trying to swap {}".format(swap_pair)
+			print "trying to swap {}".format(swap_pair)
+
 			
 			# don't want to infinitely recurse
-			path += [swap_pair]
+			path.append(swap_pair)
+
+			print "current path is {}\n".format(path)
 
 			# tuples are hashable
 			path_tup = tuple(path)
