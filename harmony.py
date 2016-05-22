@@ -45,9 +45,10 @@ class Harmony():
 			at each location (i, j) in grid[i][j]
 		swaps_left: number of total swaps remaining among
 			all blocks in grid
-		swapping_points: tuple pairs (i, j) that, at the
-			any point in the game, follow the property that
-			grid[i][j] has > 0 swaps
+		swapping_points: dict keyed by tuple pairs (i, j)
+			that, at the any point in the game, follow the
+			property that grid[i][j] has > 0 swaps. Used for 
+			O(1) deletion and insertion
 	"""
 
 	################################
@@ -101,12 +102,12 @@ class Harmony():
 				row.append(block)
 
 		# get starting points, where swaps > 0 
-		self.swapping_points = []
+		self.swapping_points = {}
 		for i in range(n**2):
 			swap = swaps[i]
 			if swap > 0:
 				index = self.list_to_grid_index(i)
-				self.swapping_points.append(index)
+				self.swapping_points[index] = True
 
 	def usage(self, state):
 		"""
@@ -442,6 +443,19 @@ class Harmony():
 
 		return swappable
 
+	def get_swappable(self):
+		"""
+		get_swappable
+			finds and returns a list of indices containing
+			swappable blocks, with swaps > 0
+
+		Return
+			[index1, index2, ...] of valid swappable blocks
+			remaining
+		"""
+		# trivial case to catch
+		return self.swapping_points.keys()
+
 	def swap(self, index1, index2):
 		"""
 		swap
@@ -472,7 +486,22 @@ class Harmony():
 			self.set_value_by_pair(index1, (color2, swap2 - 1))
 			self.set_value_by_pair(index2, (color1, swap1 - 1))
 
+			# check if no longer swappable
+			swapping_points = self.swapping_points
+			if swap2 < 2:
+				if debug:
+					print "Deleted {} with {} swap left".format(index1, swap1)
+				del swapping_points[index1]
+			if swap1 < 2:
+				if debug:
+					print "Deleted {} with {} swap left".format(index2, swap2)
+				del swapping_points[index2]
+
 			self.swaps_left -= 2
+
+			if debug:
+				print "Swapping points left: {}\n".format(
+					swapping_points.keys())
 
 			return True
 		return False
@@ -511,6 +540,14 @@ class Harmony():
 		self.set_value_by_pair(index1, (color2, swap2 + 1))
 		self.set_value_by_pair(index2, (color1, swap1 + 1))
 
+		# reinstate swap availability, if needed
+		swapping_points = self.swapping_points
+		swapping_points[index1] = True
+		swapping_points[index2] = True
+
+		if debug:
+			print "Restored {} and {}".format(index1, index2)
+
 		self.swaps_left += 2
 
 		return True
@@ -539,9 +576,10 @@ class Harmony():
 		if self.game_solved():
 			return []
 
-		for start in self.swapping_points:
+		starting_points = self.swapping_points.keys()
+		for start in starting_points:
 			if debug:
-				print "Starting at {}".format(start)
+				print "Starting at {}\n".format(start)
 			path = self.find_path(start, [], set())
 
 			if path is not None:
@@ -565,6 +603,8 @@ class Harmony():
 			[]:	if no swaps are needed; the game is complete
 			None: otherwise
 		"""
+		if debug:
+			print "Index1: {}".format(index1)
 		if self.game_solved():
 			return path
 
@@ -574,7 +614,7 @@ class Harmony():
 
 		swappable = self.valid_moves(index1)
 		if debug:
-			print "swappable ones are {}".format(swappable)
+			print "Reachable from {} are {}".format(index1, swappable)
 
 		# explore each path
 		for index2 in swappable:
@@ -582,8 +622,8 @@ class Harmony():
 			path.append(swap_pair)
 
 			if debug:
-				print "trying to swap {}".format(swap_pair)
-				print "current path is {}".format(path)
+				print "Trying to swap {}".format(swap_pair)
+				print "Current path is {}".format(path)
 
 			# tuples are hashable
 			path_tup = tuple(path)
