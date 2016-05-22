@@ -1,6 +1,7 @@
 import sys
 import os
 import json
+import cProfile
 from harmony import Harmony
 
 """
@@ -101,7 +102,11 @@ def get_path(filename):
 ################################
 # Run CLI with given data file
 ################################
-if __name__ == "__main__":
+def main():
+	"""
+	main
+		to run with cProfile
+	"""
 	# check for invalid usage
 	if len(sys.argv) != 2 or \
 		not os.path.exists(sys.argv[1]):
@@ -117,3 +122,6 @@ if __name__ == "__main__":
 		print "We found a solution!"
 		for swap in path:
 			print "Swap {} and {}.".format(swap[0], swap[1])
+
+if __name__ == "__main__":
+	cProfile.run("main()")
