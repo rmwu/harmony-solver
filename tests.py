@@ -433,9 +433,9 @@ class TestHarmonySmall(unittest.TestCase):
 		harmony = Harmony(n, colors, swaps)
 
 		index = (0, 0)
+		valid = [(1, 0)]
 
-		self.assertEqual(set([(0,1), (1,0)]),
-						set(harmony.valid_moves(index)))
+		self.assertEqual(valid, harmony.valid_moves(index))
 
 	def testPathfinding_get_swappable_none(self):
 		"""
