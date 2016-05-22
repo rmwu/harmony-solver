@@ -37,6 +37,12 @@ class Harmony():
 
 	Instance Variables
 		n: side length of game
+		colors: specifies color in each block, from left
+			to right, top to bottom. For this game,
+			0 < color < n.
+		swaps: specifies the number of swaps required for each
+			block, from left to right, top to bottom. For this
+			game, number of swaps >= 0
 		grid: n by n two-dimensional array representing
 			the tuple pair (color, swaps) of each block,
 			at each location (i, j) in grid[i][j]
@@ -68,7 +74,7 @@ class Harmony():
 				required for each block, from left
 				to right, top to bottom.
 				For this game, number of swaps >= 0
-		"""
+		"""		
 		# if one is not provided, then we cannot have
 		# a valid game
 		if not colors or not swaps:
@@ -80,6 +86,8 @@ class Harmony():
 			usage()
 
 		self.n = n
+		self.colors = colors
+		self.swaps = swaps
 
 		# maintain swaps_left for O(1) checking ending
 		# condition; else, need O(n^2) each time
@@ -105,8 +113,24 @@ class Harmony():
 				index = self.list_to_grid_index(i)
 				self.starting_points.append(index)
 
+		print self.grid
+
+	def reset(self):
+		"""
+		reset
+			reverts the game to the state it was in, when
+			initially created
+
+		Postcondition
+			All operations have been negated. Game has returned
+			to initial state
+		"""
+		self.__init__(self.n, self.colors, self.swaps)
+
 	def usage(self, state):
 		"""
+		CURRENTLY UNUSED
+
 		usage
 			prompts the user if they have given an
 			illegal game configuration
@@ -339,10 +363,10 @@ class Harmony():
 			left to finish the game
 
 		Return
-			True: if the number of swaps left not zero
+			True: if the number of swaps left greater than 0
 			False: otherwise
 		"""
-		return self.swaps_left != 0
+		return self.swaps_left > 0
 
 	def game_solved(self):
 		"""
@@ -364,7 +388,8 @@ class Harmony():
 
 		for i in range(self.n):
 			for j in range(self.n):
-				if self.grid[i][j] != i:
+				# check row number only
+				if self.grid[i][j][0] != i:
 					return False
 
 		# no swaps left, all colors in orderg
@@ -505,9 +530,13 @@ class Harmony():
 			return []
 
 		for start in self.starting_points:
-			path = self.find_path(start)
-			if path:
+			path = self.find_path(start, [], set())
+
+			if path is not None:
 				return path
+
+			# else reset from the start
+			self.reset()
 
 		return None
 
@@ -530,35 +559,41 @@ class Harmony():
 		if self.game_solved():
 			return path
 
-		# make a copy of path
-		# path += [index1]
-
 		# not solved, but no swaps left
 		if not self.has_swaps_left():
-			print self.swaps_left
 			return None
 
 		swappable = self.valid_moves(index1)
 
 		# explore each path
 		for index2 in swappable:
+			state1 = self.get_by_pair(index1)
+			state2 = self.get_by_pair(index2)
+
+			state_pair = (state1, state2)
 			swap_pair = (index1, index2)
 			print "trying to swap {}".format(swap_pair)
-			# don't want to infinitely recurse and try
-			if swap_pair not in tried:
-				path += swap_pair
-				tried.add(swap_pair)
+			# don't want to infinitely recurse
+
+			path += [swap_pair]
+			path_tup = tuple(path)
+			#if state_pair not in tried:
+			if path_tup not in tried:
+				
+				print "path is {}".format(path)
+				tried.add(path_tup)
 
 				# try to swap it and see what happens
 				self.swap(index1, index2)
-				path = self.find_path(index2, path)
-				print "found {}".format(path)
+				new_path = self.find_path(index2, path, tried)
+				print "found {}".format(new_path)
 
-				if path:
-					return path
+				if new_path:
+					return new_path
 
 				# if no path, undo the swapping
 				self.unswap(index1, index2)
+				path = path[:-1]
 
 		return None
 

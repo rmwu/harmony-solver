@@ -24,7 +24,7 @@ class TestHarmonySmall(unittest.TestCase):
 			Harmony for use in tests
 		"""
 		super(TestHarmonySmall,
-		    self).__init__(*args, **kwargs)
+			self).__init__(*args, **kwargs)
 
 		n = 2
 		colors = [0,1,1,0]
@@ -110,7 +110,7 @@ class TestHarmonySmall(unittest.TestCase):
 		grid_coords = (1, 1)
 
 		self.assertEqual(grid_coords,
-		                self.harmony.list_to_grid_index(index))
+						self.harmony.list_to_grid_index(index))
 
 	def testIndexManip_list_to_grid_index_2(self):
 		"""
@@ -124,7 +124,7 @@ class TestHarmonySmall(unittest.TestCase):
 		grid_coords = (1, 0)
 
 		self.assertEqual(grid_coords,
-		                self.harmony.list_to_grid_index(index))
+						self.harmony.list_to_grid_index(index))
 
 	def testIndexManip_grid_to_list_index_1(self):
 		"""
@@ -137,7 +137,7 @@ class TestHarmonySmall(unittest.TestCase):
 		g = (1, 1)
 
 		self.assertEqual(index,
-		                self.harmony.grid_to_list_index(g[0], g[1]))
+						self.harmony.grid_to_list_index(g[0], g[1]))
 
 	def testIndexManip_grid_to_list_index_2(self):
 		"""
@@ -151,7 +151,7 @@ class TestHarmonySmall(unittest.TestCase):
 		g = (1, 0)
 
 		self.assertEqual(index,
-		                self.harmony.grid_to_list_index(g[0], g[1]))
+						self.harmony.grid_to_list_index(g[0], g[1]))
 
 	def testIndexManip_valid_index_origin(self):
 		"""
@@ -335,11 +335,11 @@ class TestHarmonySmall(unittest.TestCase):
 		self.assertTrue(harmony.game_solved())
 
 	################################
-	# Testing swaps / unswaps
+	# Testing pathfinding helpers
 	################################
-	def testSwap_swap(self):
+	def testPathfinding_swap(self):
 		"""
-		testSwap_swap
+		testPathfinding_swap
 			tests whether swap correctly swaps two colors,
 			decreases the swaps available for each, and decreases
 			the total number of swaps left
@@ -369,9 +369,9 @@ class TestHarmonySmall(unittest.TestCase):
 		# check total swaps decrease
 		self.assertEqual(new_total, old_total - 2)
 
-	def testSwap_unswap(self):
+	def testPathfinding_unswap(self):
 		"""
-		testSwap_unswap
+		testPathfinding_unswap
 			tests whether unswap correctly reverts two colors,
 			re-increases the swaps available, and re-increases
 			the total number of swaps left
@@ -401,6 +401,82 @@ class TestHarmonySmall(unittest.TestCase):
 		# check total swaps decrease
 		self.assertEqual(new_total, old_total + 2)
 
+	def testPathfinding_valid_moves_none(self):
+		"""
+		testPathfinding_valid_moves_none
+			verifies that the valid_moves locates no valid
+			moves if there are none
+		"""
+		index = (0, 0)
+
+		self.assertEqual([], self.harmony.valid_moves(index))
+
+	def testPathfinding_valid_moves_one(self):
+		"""
+		testPathfinding_valid_moves_one
+			verifies that the valid_moves locates all valid
+			moves, one in this case
+		"""
+		index = (0, 1)
+
+		self.assertEqual([(1, 1)], self.harmony.valid_moves(index))
+
+	def testPathfinding_valid_moves_many(self):
+		"""
+		testPathfinding_valid_moves_many
+			verifies that the valid_moves locates all valid
+			moves, many in this case
+		"""
+		n = 2
+		colors = [1,1,0,0]
+		swaps = [1,1,1,1]
+		harmony = Harmony(n, colors, swaps)
+
+		index = (0, 0)
+
+		self.assertEqual(set([(0,1), (1,0)]),
+						set(harmony.valid_moves(index)))
+
+	################################
+	# Testing search algorithm
+	################################
+	def testSearch_none(self):
+		"""
+		testSearch_none
+			tests if None is returned upon an impossible situation
+		"""
+		n = 2
+		colors = [1,1,0,0]
+		swaps = [0,0,0,0]
+		harmony = Harmony(n, colors, swaps)
+		path = harmony.solve()
+
+		assert path is None
+
+	def testSearch_complete(self):
+		"""
+		testSearch_complete
+			tests if an empty array is returned upon an already
+			solved game
+		"""
+		n = 2
+		colors = [0,0,1,1]
+		swaps = [0,0,0,0]
+		harmony = Harmony(n, colors, swaps)
+		path = harmony.solve()
+
+		self.assertEqual(path, [])
+
+	def testSearch_path(self):
+		"""
+		testSearch_path
+			tests if a valid path is found, given that it exists
+			and the game does not start solved
+		"""
+		path = self.harmony.solve()
+		actual_length = 1
+
+		self.assertEqual(len(path), actual_length)
 
 if __name__ == '__main__':
 	unittest.main()
