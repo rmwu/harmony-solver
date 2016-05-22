@@ -489,19 +489,11 @@ class Harmony():
 			# check if no longer swappable
 			swapping_points = self.swapping_points
 			if swap2 < 2:
-				if debug:
-					print "Deleted {} with {} swap left".format(index1, swap1)
 				del swapping_points[index1]
 			if swap1 < 2:
-				if debug:
-					print "Deleted {} with {} swap left".format(index2, swap2)
 				del swapping_points[index2]
 
 			self.swaps_left -= 2
-
-			if debug:
-				print "Swapping points left: {}\n".format(
-					swapping_points.keys())
 
 			return True
 		return False
@@ -544,9 +536,6 @@ class Harmony():
 		swapping_points = self.swapping_points
 		swapping_points[index1] = True
 		swapping_points[index2] = True
-
-		if debug:
-			print "Restored {} and {}".format(index1, index2)
 
 		self.swaps_left += 2
 
@@ -613,17 +602,11 @@ class Harmony():
 			return None
 
 		swappable = self.valid_moves(index1)
-		if debug:
-			print "Reachable from {} are {}".format(index1, swappable)
 
 		# explore each path
 		for index2 in swappable:
 			swap_pair = (index1, index2)
 			path.append(swap_pair)
-
-			if debug:
-				print "Trying to swap {}".format(swap_pair)
-				print "Current path is {}".format(path)
 
 			# tuples are hashable
 			path_tup = tuple(path)
