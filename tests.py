@@ -294,6 +294,46 @@ class TestHarmonySmall(unittest.TestCase):
 
 		self.assertFalse(self.harmony.valid_swap(index1, index2))
 
+	def testLogic_has_swaps_left_true(self):
+		"""
+		testLogic_has_swaps_left_true
+			tests whether swaps_left, given a positive number of
+			remaining total swaps, returns True
+		"""
+		self.assertTrue(self.harmony.has_swaps_left())
+
+	def testLogic_has_waps_left_none(self):
+		"""
+		testLogic_has_waps_left_none
+			tests whether swaps_left, given no remaining total
+			swaps, returns False
+		"""
+		n = 2
+		colors = [0,0,1,1]
+		swaps = [0,0,0,0]
+		harmony = Harmony(n, colors, swaps)
+
+		self.assertFalse(harmony.has_swaps_left())
+
+	def testLogic_game_unsolved(self):
+		"""
+		testLogic_game_unsolved
+			tests whether an unsolved game is reported as unsolved
+		"""
+		self.assertFalse(self.harmony.game_solved())
+
+	def testLogic_game_solved(self):
+		"""
+		testLogic_game_solved
+			tests whether a solved game is reported as solved
+		"""
+		n = 2
+		colors = [0,0,1,1]
+		swaps = [0,0,0,0]
+		harmony = Harmony(n, colors, swaps)
+
+		self.assertTrue(harmony.game_solved())
+
 	################################
 	# Testing swaps / unswaps
 	################################
