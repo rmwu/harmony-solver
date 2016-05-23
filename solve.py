@@ -19,7 +19,7 @@ Formatting of data_filename.txt
 Author
 	Menghua Wu
 Version
-	May 21, 2016
+	May 23, 2016
 """
 
 args = sys.argv

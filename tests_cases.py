@@ -3,7 +3,7 @@ from harmony import Harmony
 from solve import get_harmony_text, get_path
 
 """
-tests.py provides unit tests for Harmony. More
+tests_cases.py provides unit tests for Harmony. More
 information regarding the class can be found
 in its own file.
 
@@ -16,7 +16,7 @@ Note
 Author
 	Menghua Wu
 Version
-	May 22, 2016
+	May 23, 2016
 """
 
 class TestHarmonyCases(unittest.TestCase):
@@ -78,6 +78,26 @@ class TestHarmonyCases(unittest.TestCase):
 		path = get_path("cases/5.in")
 
 		assert path is None
+
+	def testLarge_1(self):
+		"""
+		testLarge_1
+			tests for a trivial path for a 4 x 4.
+		"""
+		actual_length = 4
+		path = get_path("cases/6.in")
+
+		self.assertEqual(actual_length, len(path))
+
+	def testLarge_2(self):
+		"""
+		testLarge_2
+			tests for a trivial path for a 4 x 4.
+		"""
+		actual_length = 10
+		path = get_path("cases/7.in")
+
+		self.assertEqual(actual_length, len(path))
 
 if __name__ == '__main__':
 	unittest.main()
