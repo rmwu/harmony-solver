@@ -20,7 +20,7 @@ Author
 Version
 	May 22, 2016
 """
-debug = False
+debug = True
 
 def usage():
 	"""
@@ -107,6 +107,13 @@ class Harmony():
 			if swap > 0:
 				index = self.list_to_grid_index(i)
 				self.swapping_points[index] = True
+
+		self.adjacent_points = {}
+		for i in range(n):
+			for j in range(n):
+				horizontal = [(i, y) for y in range(n)]
+				vertical = [(x, j) for x in range(n)]
+				self.adjacent_points[(i, j)] = horizontal + vertical
 
 	def usage(self, state):
 		"""
@@ -403,14 +410,10 @@ class Harmony():
 			[index1, index2, ...] of valid swaps starting
 			from the given index
 		"""
-		i, j = index
-
-		horizontal = [(i, y) for y in range(self.n)]
-		vertical = [(x, j) for x in range(self.n)]
-
 		# overlap of index itself is okay since valid_swap
 		# catches not swapping with itself
-		possible_moves = horizontal + vertical
+		possible_moves = self.adjacent_points[index]
+		# possible_moves = self.get_swappable()
 		valid_moves = []
 
 		# try them all, in the horizontal and vertical lines
@@ -571,8 +574,8 @@ class Harmony():
 			[]:	if no swaps are needed; the game is complete
 			None: otherwise
 		"""
-		if debug:
-			print "Index1: {}".format(index1)
+		#if debug:
+		#	print "Index1: {}".format(index1)
 		if self.game_solved():
 			return path
 
