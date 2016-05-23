@@ -18,9 +18,11 @@ Rather, it is a good natured programming exercise.
 Author
 	Menghua Wu
 Version
-	May 22, 2016
+	May 23, 2016
 """
-debug = True
+debug = False
+
+counter = 0
 
 def usage():
 	"""
@@ -100,13 +102,19 @@ class Harmony():
 
 				row.append(block)
 
-		# get starting points, where swaps > 0 
+		# get one swap points for faster end condition
+		# get starting points, where swaps > 0
+		# other valid points, if not here, will be added
+		# as the algorithm runs
+		self.one_swap_points = {}
 		self.swapping_points = {}
 		for i in range(n**2):
 			swap = swaps[i]
 			if swap > 0:
 				index = self.list_to_grid_index(i)
 				self.swapping_points[index] = True
+				if swap == 1:
+					self.one_swap_points[index] = True
 
 		self.adjacent_points = {}
 		for i in range(n):
@@ -413,8 +421,7 @@ class Harmony():
 		# overlap of index itself is okay since valid_swap
 		# catches not swapping with itself
 		possible_moves = self.adjacent_points[index]
-		# possible_moves = self.get_swappable()
-		valid_moves = []
+ 		valid_moves = []
 
 		# try them all, in the horizontal and vertical lines
 		for move in possible_moves:
@@ -422,6 +429,20 @@ class Harmony():
 				valid_moves.append(move)
 
 		return valid_moves
+
+	def get_one_swappable(self):
+		"""
+		get_swappable
+			finds and returns a list of indices containing
+			swappable blocks, with swaps = 0
+
+		Return
+			[index1, index2, ...] of valid one-swap blocks
+			remaining
+		"""
+		one_swap = self.one_swap_points
+		return [ind for ind in one_swap
+				if one_swap[ind]]
 
 	def get_swappable(self):
 		"""
@@ -433,7 +454,6 @@ class Harmony():
 			[index1, index2, ...] of valid swappable blocks
 			remaining
 		"""
-		# trivial case to catch
 		swapping_points = self.swapping_points
 		return [ind for ind in swapping_points
 				if swapping_points[ind]]
@@ -461,6 +481,8 @@ class Harmony():
 			True: if successful
 			False: otherwise
 		"""
+		global counter
+		counter += 1
 		if self.valid_swap(index1, index2):
 			color1, swap1 = self.get_by_pair(index1)
 			color2, swap2 = self.get_by_pair(index2)
@@ -470,10 +492,19 @@ class Harmony():
 
 			# check if no longer swappable
 			swapping_points = self.swapping_points
+			one_swap = self.one_swap_points
+
 			if swap2 < 2:
 				swapping_points[index1] = False
+				one_swap[index1] = False
 			if swap1 < 2:
 				swapping_points[index2] = False
+				one_swap[index2] = False
+
+			if swap2 == 3:
+				one_swap[index1] = True
+			if swap1 == 3:
+				one_swap[index2] = True
 
 			self.swaps_left -= 2
 
@@ -519,9 +550,41 @@ class Harmony():
 		swapping_points[index1] = True
 		swapping_points[index2] = True
 
+		one_swap = self.one_swap_points
+		if swap2 == 0:
+			one_swap[index1] = True
+		if swap1 == 0:
+			one_swap[index2] = True
+
 		self.swaps_left += 2
 
 		return True
+
+	def deterministic_swaps(self, path):
+		"""
+		deterministic_swaps
+			finds swaps that must occur, due to one-swap
+			blocks in facing colors. This is meant to reduce
+			the search space before beginning, for performance.
+
+		Parameters
+			path: list of tuples of tuples, detailing swap detail
+
+		Return
+			path: changed or unchanged
+
+		Postcondition:
+			If any swaps of colinear one-swap blocks exist,
+			then they have been performed.
+		"""
+		one_swap = self.get_one_swappable()
+		for index1 in one_swap:
+			for index2 in one_swap:
+				# if they are in line and work for swaps
+				if self.valid_swap(index1, index2):
+					self.swap(index1, index2)
+					path.append((index1, index2))
+		return path
 
 	################################
 	# Main pathfinding algorithm
@@ -544,19 +607,22 @@ class Harmony():
 				valid series of swaps to win the game
 			None: otherwise
 		"""
-		if self.game_solved():
-			return []
+		try:
+			if self.game_solved():
+				return []
 
-		starting_points = self.swapping_points.keys()
-		for start in starting_points:
-			if debug:
-				print "Starting at {}\n".format(start)
-			path = self.find_path(start, [], set())
+			starting_points = self.swapping_points.keys()
+			for start in starting_points:
+				if debug:
+					print "Starting at {}\n".format(start)
+				path = self.find_path(start, [], set())
 
-			if path is not None:
-				return path
+				if path is not None:
+					return path
+			return None
 
-		return None
+		except (KeyboardInterrupt, SystemExit):
+			print "\nActions: {}\n".format(counter)
 
 	def find_path(self, index1, path = [], tried = set()):
 		"""
@@ -576,12 +642,15 @@ class Harmony():
 		"""
 		#if debug:
 		#	print "Index1: {}".format(index1)
-		if self.game_solved():
-			return path
-
-		# not solved, but no swaps left
+		
+		# base case, no more swaps
 		if not self.has_swaps_left():
+			if self.game_solved():
+				return path
 			return None
+
+		# reduce search space
+		# path = self.deterministic_swaps(path)
 
 		swappable = self.valid_moves(index1)
 
@@ -613,5 +682,5 @@ class Harmony():
 			# if no path, undo the swapping
 			path.pop()
 			self.unswap(index1, index2)
-			
+		
 		return None
