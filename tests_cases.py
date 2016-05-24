@@ -99,5 +99,16 @@ class TestHarmonyCases(unittest.TestCase):
 
 		self.assertEqual(actual_length, len(path))
 
+	def testLarge_3(self):
+		"""
+		testLarge_3
+			tests for a trivial path for Harmony 3
+			puzzle 8 of pack 1.
+		"""
+		actual_length = 11
+		path = get_path("cases/8.in")
+
+		self.assertEqual(actual_length, len(path))
+
 if __name__ == '__main__':
 	unittest.main()
