@@ -1,7 +1,7 @@
 #DFS solver for Harmony 3
 
 ## Current Project Status
-- solver works for all 3 by 3 cases.
+- solver works for all 3 by 3 cases and simple 4 by 4 cases.
 - optimizing for larger cases.
 
 ## About Harmony 3
