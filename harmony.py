@@ -52,6 +52,9 @@ class Harmony():
 			that, at the any point in the game, follow the
 			property that swaps[index] = 1. Used for trivial
 			swapping cases to reduce search space.
+
+		get_swappable: successor function to use. If long path,
+			use successors sorted by increasing possible swaps
 	"""
 
 	################################
@@ -83,13 +86,20 @@ class Harmony():
 		if len(colors) != n**2 or len(swaps) != n**2:
 			self.usage(1)
 
+		# store given variables
 		self.n = n
+		self.colors = colors
+		self.swaps = swaps
 
 		# maintain swaps_left for O(1) checking search over
 		self.swaps_left = sum(swaps)
 
-		self.colors = colors
-		self.swaps = swaps
+		# if long path, use guided search
+		MAX_LENGTH = 8
+		if self.swaps_left > MAX_LENGTH * 2:
+			self.get_swappable = self.get_swappable_sorted
+		else:
+			self.get_swappable = self.get_swappable_unsorted
 
 		# index manipulation initialization
 		self.list_to_grid = {}
@@ -477,7 +487,7 @@ class Harmony():
 		return [ind for ind in one_swap
 				if one_swap[ind]]
 
-	def get_swappable(self):
+	def get_swappable_unsorted(self):
 		"""
 		get_swappable
 			finds and returns a list of indices containing
@@ -490,6 +500,30 @@ class Harmony():
 		swapping_points = self.swapping_points
 		return [ind for ind in swapping_points
 				if swapping_points[ind]]
+
+	def get_swappable_sorted(self):
+		"""
+		get_swappable_sorted
+			finds and returns a list of indices containing
+			swappable blocks, with swaps > 0, sorted in order
+			of increasing swaps
+
+		Return
+			[index1, index2, ...] of valid swappable blocks
+			remaining in order of increasing swaps
+		"""
+		swapping_points = self.swapping_points
+
+		sorted_points = []
+		for ind in swapping_points:
+			if swapping_points[ind]:
+				color, swaps = self.get(ind)
+				sorted_points.append((color, swaps, ind))
+
+		# sort by swaps
+		sorted_points.sort(key = lambda x: x[1])
+		# get index
+		return [x[2] for x in sorted_points]
 
 	def swap(self, index1, index2):
 		"""
