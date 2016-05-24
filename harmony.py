@@ -20,7 +20,7 @@ Author
 Version
 	May 23, 2016
 """
-debug = True
+debug = False
 
 class Harmony():
 	"""
@@ -95,11 +95,16 @@ class Harmony():
 		self.swaps_left = sum(swaps)
 
 		# if long path, use guided search
-		MAX_LENGTH = 8
-		if self.swaps_left > MAX_LENGTH * 2:
+		SWAP_CHANGE_LEN = 8
+		MAX_LEN = 12
+
+		if self.swaps_left > SWAP_CHANGE_LEN * 2:
 			self.get_swappable = self.get_swappable_sorted
 		else:
 			self.get_swappable = self.get_swappable_unsorted
+
+		if self.swaps_left > MAX_LEN * 2:
+			self.usage(2)
 
 		# index manipulation initialization
 		self.list_to_grid = {}
@@ -159,6 +164,8 @@ class Harmony():
 			print "Please provide colors and/or swaps"
 		elif state == 1:
 			print "Wrong list size for color or swaps."
+		elif state == 2:
+			print "Sorry we can't solve paths this long yet!"
 		else: # currently unused, may implement in future
 			print "Not the same number of blocks per color."
 		sys.exit(1)
