@@ -92,6 +92,9 @@ def get_path(filename):
 	n = data["n"]
 	colors = data["colors"]
 	swaps = data["swaps"]
+	test = data["test"]
+	# this formatting is if filename = "cases/#.in"
+	print "Test {}: {}\n".format(filename[6], test)
 
 	# load and solve game
 	harmony = Harmony(n, colors, swaps)
