@@ -22,6 +22,17 @@ Version
 """
 debug = True
 
+counter = 0
+
+def usage():
+	"""
+	usage
+		prompts the user that their input is incorrect
+		and exits the program
+	"""
+	print "Your input file is improperly formatted."
+	sys.exit(1)
+
 class Harmony():
 	"""
 	Harmony represents the grid of the game, which
@@ -30,24 +41,15 @@ class Harmony():
 
 	Instance Variables
 		n: side length of game
-		colors: length n^2 list of colors, representing a 
-			grid going from top left to bottom right. The
-			value of colors is 0 <= color < n.
-		swaps: length n^2 list of swap counts, representing
-			a grid going from top left to bottom right. The
-			number of swaps is s >= 0.
-
-		list_to_grid: dictionary mapping one-dimensional list
-			indices to their equivalent (i, j) tuple form
-		grid_to_list: dictionary mapping (i, j) tuples to
-			their equivalent list index forms
-
+		grid: n by n two-dimensional array representing
+			the tuple pair (color, swaps) of each block,
+			at each location (i, j) in grid[i][j]
 		swaps_left: number of total swaps remaining among
-			all blocks in grid.
+			all blocks in grid
 		swapping_points: dict keyed by tuple pairs (i, j)
 			that, at the any point in the game, follow the
 			property that grid[i][j] has > 0 swaps. Used for 
-			O(1) deletion and insertion.
+			O(1) deletion and insertion
 	"""
 
 	################################
@@ -57,9 +59,10 @@ class Harmony():
 	def __init__(self, n = 0, colors = None, swaps = None):
 		"""
 		Constructor
-			initializes n, colors, and swaps as provided.
-			Determines swaps_left and creates a list of
-			swapping_points from which to begin the search
+			initializes grid, which is
+			represented as a two-dimensional array.
+			Colors and swaps for each block are 
+			represented in a tuple of form (color, swap).
 
 		Parameters
 			n: side length of game
@@ -68,39 +71,36 @@ class Harmony():
 				For this game, 0 < color < n.
 			swaps: specifies the number of swaps
 				required for each block, from left
-				to right, top to bottom. For this game,
-				number of swaps >= 0
+				to right, top to bottom.
+				For this game, number of swaps >= 0
 		"""		
 		# if one is not provided, then we cannot have
 		# a valid game
 		if not colors or not swaps:
-			self.usage(0)
+			print "Either colors or swaps is not provided."
+			usage()
 
 		if len(colors) != n**2 or len(swaps) != n**2:
-			self.usage(1)
+			print "Either colors or swaps has the wrong length."
+			usage()
 
 		self.n = n
 
-		# maintain swaps_left for O(1) checking search over
+		# maintain swaps_left for O(1) checking ending
+		# condition; else, need O(n^2) each time
 		self.swaps_left = sum(swaps)
 
-		self.colors = colors
-		self.swaps = swaps
-
-		# index manipulation initialization
-		self.list_to_grid = {}
-		self.grid_to_list = {}
-
-		l2g = self.list_to_grid # faster calls
-		g2l = self.grid_to_list
-
+		self.grid = []
+		# grid initialization
 		for i in range(n):
+			self.grid.append([])
+			row = self.grid[i]
+
 			for j in range(n):
-				grid_ind = (i, j)
-				list_ind = i*n + j
-				
-				l2g[list_ind] = grid_ind
-				g2l[grid_ind] = list_ind
+				index = self.grid_to_list_index(i, j)
+				block = (colors[index], swaps[index])
+
+				row.append(block)
 
 		# get one swap points for faster end condition
 		# get starting points, where swaps > 0
@@ -110,50 +110,50 @@ class Harmony():
 		self.swapping_points = {}
 		for i in range(n**2):
 			swap = swaps[i]
-			if swap > 0: # can start from this point
-				self.swapping_points[i] = True
-				if swap == 1: # deterministic swaps
-					self.one_swap_points[i] = True
+			if swap > 0:
+				index = self.list_to_grid_index(i)
+				self.swapping_points[index] = True
+				if swap == 1:
+					self.one_swap_points[index] = True
 
-		# for faster checking of valid swaps
-		# stored in list index format
 		self.adjacent_points = {}
 		for i in range(n):
 			for j in range(n):
-				horizontal = [g2l[(i, y)] for y in range(n)]
-				vertical = [g2l[(x, j)] for x in range(n)]
-				self.adjacent_points[g2l[(i, j)]] = horizontal + vertical
+				horizontal = [(i, y) for y in range(n)]
+				vertical = [(x, j) for x in range(n)]
+				self.adjacent_points[(i, j)] = horizontal + vertical
 
 	def usage(self, state):
 		"""
+		CURRENTLY UNUSED
+
 		usage
 			prompts the user if they have given an
 			illegal game configuration
 
 		Parameters
 			state: integer of [0, 1, 2]
-				0 represents absence of data
+				0 represents wrong list sizes
 
-				1 represents wrong data size
+				1 represents wrong swaps, e.g. uneven
 
 				2 represents wrong color configuration,
 				e.g. not the same number of each color.
 		"""
-		print "Your input file is improperly formatted."
-
 		if state == 0:
-			print "Please provide colors and/or swaps"
-		elif state == 1:
 			print "Wrong list size for color or swaps."
-		else: # currently unused, may implement in future
+		elif state == 1:
+			print "Uneven number of swaps."
+		else:
 			print "Not the same number of blocks per color."
 		sys.exit(1)
 
 	def get(self, index):
 		"""
 		get
-			returns the tuple (color, swaps) stored at index,
-			which is an integer list index
+			returns the tuple stored at grid[i][j],
+			where (i, j) is the tuple equivalent of 
+			the given index
 
 		Parameters
 			index: single integer index representing some
@@ -161,47 +161,14 @@ class Harmony():
 				to right, top to bottom
 
 		Return
-			(colors[index], swaps[index]): if index valid
-		"""
-		return (self.get_color(index), self.get_swaps(index))
-
-	def get_color(self, index):
-		"""
-		get_color
-			returns the color stored at colors[index]
-
-		Parameters
-			index: single integer index representing some
-				(i, j) in a one-dimensional form from left
-				to right, top to bottom
-
-		Return
-			colors[index]: if the index is valid
+			grid[i][j]: if the index is valid
 		"""
 		try:
-			return self.colors[index]
+			i, j = self.list_to_grid_index(index)
+			return self.grid[i][j]
 		except:
-			raise KeyError("Invalid list index {}.".format(index))
+			raise KeyError("Invalid grid index {}.".format(index))
 
-	def get_swaps(self, index):
-		"""
-		get_swaps
-			returns the color stored at swaps[index]
-
-		Parameters
-			index: single integer index representing some
-				(i, j) in a one-dimensional form from left
-				to right, top to bottom
-
-		Return
-			swaps[index]: if the index is valid
-		"""
-		try:
-			return self.swaps[index]
-		except:
-			raise KeyError("Invalid list index {}.".format(index))
-
-	# deprecated
 	def get_by_pair(self, pair):
 		"""
 		get_by_pair
@@ -221,30 +188,29 @@ class Harmony():
 		except:
 			raise KeyError("Invalid grid index {}.".format(pair))
 
-	def set_value(self, index, color, swaps):
+	def set_value(self, index, item):
 		"""
 		set_value
 			sets the value at grid[i][j] to item, where
 			(i, j) is the tuple equivalent of the given index
 
 		Parameters
-			index: integer list index representing some
+			index: single integer index representing some
 				(i, j) in a one-dimensional form from left
 				to right, top to bottom
-			color: integer 0 <= color < n
-			swaps: integer swaps >= 0
+			item: tuple (color, swap) representing the new 
+				value of the block at (i, j)
 
 		Return
-			(color, swaps): if the index is valid
+			grid[i][j]: if the index is valid
 		"""
 		try:
-			self.colors[index] = color
-			self.swaps[index] = swaps
-			return (color, swaps)
+			i, j = self.list_to_grid_index(index)
+			self.grid[i][j] = item
+			return item
 		except:
 			raise KeyError("Invalid grid index {}.".format(index))
 
-	# deprecated
 	def set_value_by_pair(self, pair, item):
 		"""
 		set_value_by_pair
@@ -280,22 +246,21 @@ class Harmony():
 			two-dimensional (i, j) representation of index
 		"""
 		# integer division
-		return self.list_to_grid[index]
-		# return (index / self.n, index % self.n)
+		return (index / self.n, index % self.n)
 
-	def grid_to_list_index(self, index):
+	def grid_to_list_index(self, i, j):
 		"""
 		grid_to_list_index returns the one-dimensional
 			index of (i, j) for the given grid of size n
 
 		Parameters
-			index: tuple (i, j) of integers
+			i: x-value of index
+			j: y-value of index
 
 		Return
 			one-dimensional representation of (i, j)
 		"""
-		return self.grid_to_list[index]
-		# return i * self.n + j
+		return i * self.n + j
 
 	def valid_index(self, index):
 		"""
@@ -304,13 +269,15 @@ class Harmony():
 			is within the bounds of the grid
 
 		Parameters
-			index: integer list index
+			index: (i, j) tuple representing the
+				index of item grid[i][j]
 
 		Return
-			True: if 0 <= index < n^2
+			True: if 0 <= i, j < n
 			False: otherwise
 		"""
-		return (0 <= index < self.n**2)
+		i, j = self.list_to_grid_index(index)
+		return (0 <= i < self.n and 0 <= j < self.n)
 
 	def indices_in_line(self, index1, index2):
 		"""
@@ -328,24 +295,28 @@ class Harmony():
 			the grid for valid colinearity.
 
 		Parameters
-			index1: list integer index
-			index2: list integer index
+			index1: (i1, j1) tuple representing
+				the index of item grid[i1][j1]
+			index2: (i2, j2) tuple representing
+				the index of item grid[i2][j2]
 
 		Return
-			True: if grid forms of index1 and index2
-				are in line with each other
+			True: if i1 == i2 or j1 == j2 and
+				both index1 and index2 are valid
 			False: otherwise
 		"""
 		# check if index1 and index2 are valid
 		# uncomment for slower, safer code
 		"""
 		for index in [index1, index2]:
-			if not self.valid_index(index):
+			if not self.valid_index(
+				self.grid_to_list_index(index[0], index[1])):
 				return False
 		"""
+
 		# now check if index1 and index2 are colinear
-		i1, j1 = self.list_to_grid[index1]
-		i2, j2 = self.list_to_grid[index2]
+		i1, j1 = index1
+		i2, j2 = index2
 
 		return (i1 == i2 or j1 == j2)
 
@@ -360,8 +331,10 @@ class Harmony():
 			available
 
 		Parameters
-			index1: list integer index
-			index2: list integer index
+			index1: (i1, j1) tuple representing
+				the index of item grid[i1][j1]
+			index2: (i2, j2) tuple representing
+				the index of item grid[i2][j2]
 
 		Return
 			True: if index1, index2 are colinear
@@ -374,15 +347,13 @@ class Harmony():
 			return False
 
 		if self.indices_in_line(index1, index2):
-			color1, swap1 = self.get(index1)
-			color2, swap2 = self.get(index2)
+			color1, swap1 = self.get_by_pair(index1)
+			color2, swap2 = self.get_by_pair(index2)
 
 			# don't allow impossible situations
 			# if swap to a row that is impossible
-			if ((swap1 < 2 and 
-			    color1 != self.list_to_grid[index2][0]) or
-				(swap2 < 2 and 
-				color2 != self.list_to_grid[index1][0])):
+			if ((swap1 < 2 and color1 != index2[0]) or
+				(swap2 < 2 and color2 != index1[0])):
 				return False
 
 			return (swap1 > 0 and swap2 > 0)
@@ -422,9 +393,8 @@ class Harmony():
 
 		for i in range(self.n):
 			for j in range(self.n):
-				index = self.grid_to_list[(i, j)]
 				# check row number only
-				if self.colors[index] != i:
+				if self.grid[i][j][0] != i:
 					return False
 
 		# no swaps left, all colors in order
@@ -441,7 +411,8 @@ class Harmony():
 			valid swaps, as defined by valid_swap.
 
 		Parameters
-			index: list integer index
+			index: (i, j) tuple representing the
+				index of item grid[i][j]
 
 		Return
 			[index1, index2, ...] of valid swaps starting
@@ -495,8 +466,10 @@ class Harmony():
 			and decreases the swap count accordingly
 
 		Parameters
-			index1: list integer index
-			index2: list integer index
+			index1: (i1, j1) tuple representing
+				the index of item grid[i1][j1]
+			index2: (i2, j2) tuple representing
+				the index of item grid[i2][j2]
 
 		Postcondition
 			The colors at index1, index2 are swapped.
@@ -508,12 +481,14 @@ class Harmony():
 			True: if successful
 			False: otherwise
 		"""
+		global counter
+		counter += 1
 		if self.valid_swap(index1, index2):
-			color1, swap1 = self.get(index1)
-			color2, swap2 = self.get(index2)
+			color1, swap1 = self.get_by_pair(index1)
+			color2, swap2 = self.get_by_pair(index2)
 
-			self.set_value(index1, color2, swap2 - 1)
-			self.set_value(index2, color1, swap1 - 1)
+			self.set_value_by_pair(index1, (color2, swap2 - 1))
+			self.set_value_by_pair(index2, (color1, swap1 - 1))
 
 			# check if no longer swappable
 			swapping_points = self.swapping_points
@@ -544,8 +519,10 @@ class Harmony():
 			called. Swap counts are increased accordingly.
 
 		Parameters
-			index1: list integer index
-			index2: list integer index
+			index1: (i1, j1) tuple representing
+				the index of item grid[i1][j1]
+			index2: (i2, j2) tuple representing
+				the index of item grid[i2][j2]
 
 		Precondition
 			The colors at index1, index2 were swapped in
@@ -562,11 +539,11 @@ class Harmony():
 			True: if successful
 			False: otherwise
 		"""
-		color1, swap1 = self.get(index1)
-		color2, swap2 = self.get(index2)
+		color1, swap1 = self.get_by_pair(index1)
+		color2, swap2 = self.get_by_pair(index2)
 
-		self.set_value(index1, color2, swap2 + 1)
-		self.set_value(index2, color1, swap1 + 1)
+		self.set_value_by_pair(index1, (color2, swap2 + 1))
+		self.set_value_by_pair(index2, (color1, swap1 + 1))
 
 		# reinstate swap availability, if needed
 		swapping_points = self.swapping_points
@@ -591,7 +568,7 @@ class Harmony():
 			the search space before beginning, for performance.
 
 		Parameters
-			path: list of tuples of indices, detailing swap order
+			path: list of tuples of tuples, detailing swap detail
 
 		Return
 			path: changed or unchanged
@@ -626,27 +603,26 @@ class Harmony():
 			combination, unswaps and resets the two blocks.
 
 		Return
-			[(index1, index2), ...]: if there exists a
+			[(i1, i2), (j1, j2), ...]: if there exists a
 				valid series of swaps to win the game
 			None: otherwise
 		"""
-		if self.game_solved():
-			return []
+		try:
+			if self.game_solved():
+				return []
 
-		starting_points = self.swapping_points.keys()
-		start_path = self.deterministic_swaps([])
+			starting_points = self.swapping_points.keys()
+			for start in starting_points:
+				if debug:
+					print "Starting at {}\n".format(start)
+				path = self.find_path(start, [], set())
 
-		for start in starting_points:
-			if debug:
-				print "Starting at {}\n".format(start)
+				if path is not None:
+					return path
+			return None
 
-			start_copy = [swap for swap in start_path]
-			path = self.find_path(start, start_copy, set())
-
-			if path is not None:
-				return path
-
-		return None
+		except (KeyboardInterrupt, SystemExit):
+			print "\nActions: {}\n".format(counter)
 
 	def find_path(self, index1, path = [], tried = set()):
 		"""
@@ -655,12 +631,13 @@ class Harmony():
 			to DFS from all different paths
 
 		Parameters
-			index: list integer index
+			index1: (i, j) tuple representing the
+				index of item grid[i][j]
 
 		Return
-			[(index1, index2), ...]: if there exists a
+			[(i1, i2), (j1, j2), ...]: if there exists a
 				valid series of swaps to win the game
-			[]:	if no swaps are needed; the game is done
+			[]:	if no swaps are needed; the game is complete
 			None: otherwise
 		"""
 		#if debug:
