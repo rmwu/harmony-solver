@@ -94,7 +94,7 @@ class TestHarmonyCases(unittest.TestCase):
 		testLarge_2
 			tests for a trivial path for a 4 x 4.
 		"""
-		actual_length = 10
+		actual_length = 12
 		path = get_path("cases/7.in")
 
 		self.assertEqual(actual_length, len(path))

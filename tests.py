@@ -27,10 +27,10 @@ class TestHarmonySmall(unittest.TestCase):
 		super(TestHarmonySmall,
 			self).__init__(*args, **kwargs)
 
-		n = 2
+		self.n = 2
 		colors = [0,1,1,0]
 		swaps = [0,1,0,1]
-		self.harmony = Harmony(n, colors, swaps)
+		self.harmony = Harmony(self.n, colors, swaps)
 
 	################################
 	# Testing Harmony constructor
@@ -41,28 +41,17 @@ class TestHarmonySmall(unittest.TestCase):
 			tests whether Harmony creates an object
 			knowing its correct size
 		"""
-		n = 2
-		self.assertEqual(n, self.harmony.n)
-
-	def testConstructor_grid(self):
-		"""
-		testConstructor_grid
-			tests whether Harmony initializes the grid
-			correctly, with (color, swaps) pairs
-		"""
-		grid = [[(0,0), (1,1)],
-				[(1,0), (0,1)]]
-
-		self.assertEqual(grid, self.harmony.grid)
+		self.assertEqual(self.n, self.harmony.n)
 
 	def testConstructor_grid_size(self):
 		"""
 		testConstructor_grid_size
-			tests whether Harmony initializes the grid
-			with the correct size
+			tests whether Harmony initializes colors
+			and swaps of the right size
 		"""
-		self.assertEqual(2, len(self.harmony.grid))
-		self.assertEqual(2, len(self.harmony.grid[0]))
+		size = self.n**2
+		self.assertEqual(size, len(self.harmony.colors))
+		self.assertEqual(size, len(self.harmony.swaps))
 
 	def testConstructor_swaps_left(self):
 		"""
@@ -93,7 +82,7 @@ class TestHarmonySmall(unittest.TestCase):
 			tests that Harmony extracts the correct
 			starting points, given that they exist
 		"""
-		swapping_points = set([(0,1), (1,1)])
+		swapping_points = set([1, 3])
 
 		self.assertEqual(swapping_points, set(self.harmony.swapping_points))
 
@@ -138,7 +127,7 @@ class TestHarmonySmall(unittest.TestCase):
 		g = (1, 1)
 
 		self.assertEqual(index,
-						self.harmony.grid_to_list_index(g[0], g[1]))
+						self.harmony.grid_to_list_index(g))
 
 	def testIndexManip_grid_to_list_index_2(self):
 		"""
@@ -152,7 +141,7 @@ class TestHarmonySmall(unittest.TestCase):
 		g = (1, 0)
 
 		self.assertEqual(index,
-						self.harmony.grid_to_list_index(g[0], g[1]))
+						self.harmony.grid_to_list_index(g))
 
 	def testIndexManip_valid_index_origin(self):
 		"""
@@ -209,8 +198,8 @@ class TestHarmonySmall(unittest.TestCase):
 			tests whether two horizontal colinear indices are
 			reported as in line with each other
 		"""
-		index1 = (0, 0)
-		index2 = (0, 1)
+		index1 = 0
+		index2 = 1
 
 		self.assertTrue(self.harmony.indices_in_line(index1, index2))
 
@@ -220,8 +209,8 @@ class TestHarmonySmall(unittest.TestCase):
 			whether two vertical colinear indices are
 			reported as in line with each other
 		"""
-		index1 = (0, 0)
-		index2 = (1, 0)
+		index1 = 0
+		index2 = 2
 
 		self.assertTrue(self.harmony.indices_in_line(index1, index2))
 
@@ -231,8 +220,8 @@ class TestHarmonySmall(unittest.TestCase):
 			tests whether two non-linear indices are
 			reported as in not line with each other
 		"""
-		index1 = (0, 0)
-		index2 = (1, 1)
+		index1 = 0
+		index2 = 3
 
 		self.assertFalse(self.harmony.indices_in_line(index1, index2))
 
@@ -257,19 +246,21 @@ class TestHarmonySmall(unittest.TestCase):
 			given a list index and value
 		"""
 		index = 3
-		old_value = self.harmony.get(index)
-		value = (1, 1)
+		old_color, old_swaps = self.harmony.get(index)
+		color, swaps = (1, 1)
 
 		# should not be equal before setting
-		self.assertNotEqual(value, self.harmony.get(index))
+		self.assertNotEqual((color, swaps),
+		                    self.harmony.get(index))
 
-		self.harmony.set_value(index, value)
+		self.harmony.set_value(index, color, swaps)
 		
 		# should be equal after setting
-		self.assertEqual(value, self.harmony.get(index))
+		self.assertEqual((color, swaps),
+		                 self.harmony.get(index))
 
 		# restore the original grid
-		self.harmony.set_value(index, old_value)
+		self.harmony.set_value(index, old_color, old_swaps)
 
 	################################
 	# Testing game logic
@@ -279,8 +270,8 @@ class TestHarmonySmall(unittest.TestCase):
 		testLogic_valid_swap
 			tests whether a valid swap is reported as valid
 		"""
-		index1 = (0, 1)
-		index2 = (1, 1)
+		index1 = 1
+		index2 = 3
 
 		self.assertTrue(self.harmony.valid_swap(index1, index2))
 
@@ -290,8 +281,8 @@ class TestHarmonySmall(unittest.TestCase):
 			tests whether a invalid swap is reported as 
 			not valid
 		"""
-		index1 = (0, 0)
-		index2 = (1, 0)
+		index1 = 0
+		index2 = 2
 
 		self.assertFalse(self.harmony.valid_swap(index1, index2))
 
@@ -345,18 +336,18 @@ class TestHarmonySmall(unittest.TestCase):
 			decreases the swaps available for each, and decreases
 			the total number of swaps left
 		"""
-		index1 = (0, 1)
-		index2 = (1, 1)
+		index1 = 1
+		index2 = 3
 
-		color1, swaps1 = self.harmony.get_by_pair(index1)
-		color2, swaps2 = self.harmony.get_by_pair(index2)
+		color1, swaps1 = self.harmony.get(index1)
+		color2, swaps2 = self.harmony.get(index2)
 		old_total = self.harmony.swaps_left
 
 		# swap here, and then observe new color / swaps
 		self.harmony.swap(index1, index2)
 
-		color1_new, swaps1_new = self.harmony.get_by_pair(index1)
-		color2_new, swaps2_new = self.harmony.get_by_pair(index2)
+		color1_new, swaps1_new = self.harmony.get(index1)
+		color2_new, swaps2_new = self.harmony.get(index2)
 		new_total = self.harmony.swaps_left
 
 		# check color swapping
@@ -377,18 +368,18 @@ class TestHarmonySmall(unittest.TestCase):
 			re-increases the swaps available, and re-increases
 			the total number of swaps left
 		"""
-		index1 = (0, 1)
-		index2 = (1, 1)
+		index1 = 1
+		index2 = 3
 
-		color1, swaps1 = self.harmony.get_by_pair(index1)
-		color2, swaps2 = self.harmony.get_by_pair(index2)
+		color1, swaps1 = self.harmony.get(index1)
+		color2, swaps2 = self.harmony.get(index2)
 		old_total = self.harmony.swaps_left
 
 		# swap here, and then observe new color / swaps
 		self.harmony.unswap(index1, index2)
 
-		color1_new, swaps1_new = self.harmony.get_by_pair(index1)
-		color2_new, swaps2_new = self.harmony.get_by_pair(index2)
+		color1_new, swaps1_new = self.harmony.get(index1)
+		color2_new, swaps2_new = self.harmony.get(index2)
 		new_total = self.harmony.swaps_left
 
 		# check color swapping
@@ -408,7 +399,7 @@ class TestHarmonySmall(unittest.TestCase):
 			verifies that the valid_moves locates no valid
 			moves if there are none
 		"""
-		index = (0, 0)
+		index = 0
 
 		self.assertEqual([], self.harmony.valid_moves(index))
 
@@ -418,9 +409,9 @@ class TestHarmonySmall(unittest.TestCase):
 			verifies that the valid_moves locates all valid
 			moves, one in this case
 		"""
-		index = (0, 1)
+		index = 1
 
-		self.assertEqual([(1, 1)], self.harmony.valid_moves(index))
+		self.assertEqual([3], self.harmony.valid_moves(index))
 
 	def testPathfinding_valid_moves_many(self):
 		"""
@@ -433,8 +424,8 @@ class TestHarmonySmall(unittest.TestCase):
 		swaps = [1,1,1,1]
 		harmony = Harmony(n, colors, swaps)
 
-		index = (0, 0)
-		valid = [(1, 0)]
+		index = 0
+		valid = [2]
 
 		self.assertEqual(valid, harmony.valid_moves(index))
 
@@ -458,7 +449,7 @@ class TestHarmonySmall(unittest.TestCase):
 			list of still swappable states, if there are
 			some
 		"""
-		swappable = set([(0,1),(1,1)])
+		swappable = set([1,3])
 
 		self.assertEqual(swappable,
 		                set(self.harmony.get_swappable()))
