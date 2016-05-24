@@ -21,7 +21,7 @@ Author
 Version
 	May 23, 2016
 """
-
+debug = False
 args = sys.argv
 
 def usage():
@@ -127,4 +127,7 @@ def main():
 			print "Swap {} and {}.".format(swap[0], swap[1])
 
 if __name__ == "__main__":
-	cProfile.run("main()")
+	if debug:
+		cProfile.run("main()")
+	else:
+		main()
